@@ -541,7 +541,7 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, 
                                         {currentUser.accessLevel === 'Admin' ? (
                                             <select
                                                 value={project.team || ''}
-                                                onChange={(e) => onUpdateProject({ ...project, team: e.target.value || undefined })}
+                                                onChange={(e) => onUpdateProject({ ...project, team: e.target.value })}
                                                 className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-md font-bold text-xs cursor-pointer hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-colors border border-emerald-300 dark:border-emerald-700"
                                             >
                                                 <option value="">未分配</option>

@@ -299,16 +299,22 @@ export const App: React.FC = () => {
                 hasAccess = true;
             }
             // Team-based filtering for other members
+            // Team-based filtering for other members
             else {
                 // Check if user's team matches project's team
-                const userTeam = currentUser.team;
-                const projectTeam = p.team;
+                const userTeam = currentUser.team || '';
+                const projectTeam = p.team || '';
 
                 // If user has a team, only show projects from their team OR projects they're assigned to
                 if (userTeam) {
                     const isTeamProject = projectTeam === userTeam;
                     const isAssigned = (p.teamMembers || []).includes(currentUser.id);
-                    hasAccess = isTeamProject || isAssigned;
+                    // Special case: If user is in a team, they should NOT see projects from other teams unless assigned
+                    if (projectTeam && projectTeam !== userTeam && !isAssigned) {
+                        hasAccess = false;
+                    } else {
+                        hasAccess = isTeamProject || isAssigned;
+                    }
                 } else {
                     // If user has no team, only show assigned projects
                     const members = p.teamMembers || [];

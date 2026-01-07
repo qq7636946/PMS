@@ -782,7 +782,7 @@ export const App: React.FC = () => {
                         </>
                     )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 w-full">
+                <div className="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6 w-full">
                     {projs.map(p => {
                         // 安全讀取陣列
                         const stages = p.stages || DEFAULT_STAGES;
@@ -805,7 +805,7 @@ export const App: React.FC = () => {
                         const isMissingInfo = !p.dueDate || !p.startDate || tasks.length === 0 || hasStageGap;
 
                         return (
-                            <div key={p.id} onClick={() => { setSelectedProjectId(p.id); setActiveView('projects'); }} className="bg-white dark:bg-[#18181b] rounded-[28px] p-6 border border-slate-100 dark:border-zinc-800 transition-all cursor-pointer group relative overflow-hidden shadow-card hover:shadow-card-hover dark:shadow-none dark:hover:shadow-lime-400/20 hover:border-lime-400/30 hover:-translate-y-1">
+                            <div key={p.id} onClick={() => { setSelectedProjectId(p.id); setActiveView('projects'); }} className="bg-white dark:bg-[#18181b] rounded-[28px] md:rounded-[28px] p-4 md:p-6 border border-slate-100 dark:border-zinc-800 transition-all cursor-pointer group relative overflow-hidden shadow-card hover:shadow-card-hover dark:shadow-none dark:hover:shadow-lime-400/20 hover:border-lime-400/30 hover:-translate-y-1">
 
                                 {canEdit && (
                                     <button
@@ -817,74 +817,84 @@ export const App: React.FC = () => {
                                     </button>
                                 )}
 
-                                <div className="relative z-10 pt-2">
-                                    <div className="flex justify-between items-start mb-5">
-                                        <div className="relative group/image">
-                                            <div className="w-14 h-14 bg-slate-100 dark:bg-zinc-800 rounded-2xl border border-slate-200 dark:border-zinc-700/50 flex items-center justify-center overflow-hidden relative">
-                                                {p.clientAvatar ? <img src={p.clientAvatar} alt={p.clientName} className="w-full h-full object-cover" /> : <Folder size={24} className="text-slate-400 dark:text-zinc-600" />}
-                                            </div>
-                                            {canEdit && (
-                                                <div className="absolute inset-0 -m-1 bg-black/90 md:bg-black/80 rounded-2xl flex items-center justify-center gap-1.5 opacity-100 md:opacity-0 md:group-hover/image:opacity-100 transition-opacity z-20 backdrop-blur-[2px]">
-                                                    <label className="w-7 h-7 md:w-6 md:h-6 flex items-center justify-center bg-white/20 hover:bg-white text-white hover:text-black rounded-full cursor-pointer transition-all border border-white/30" onClick={(e) => e.stopPropagation()} title="上傳圖片">
-                                                        <input type="file" className="hidden" accept="image/*" onChange={(e) => handleProjectImageUpdate(e, p.id)} />
-                                                        <Camera size={14} className="md:w-3 md:h-3" />
-                                                    </label>
-                                                    <button onClick={(e) => handleOpenMediaLibrary(e, p.id)} className="w-7 h-7 md:w-6 md:h-6 flex items-center justify-center bg-white/20 hover:bg-lime-400 hover:text-black text-white rounded-full cursor-pointer transition-all border border-white/30" title="從媒體庫選擇">
-                                                        <ImageIcon size={14} className="md:w-3 md:h-3" />
-                                                    </button>
-                                                    {p.clientAvatar && <button onClick={(e) => handleRemoveProjectImage(e, p.id)} className="w-7 h-7 md:w-6 md:h-6 flex items-center justify-center bg-white/20 hover:bg-rose-500 text-white rounded-full cursor-pointer transition-all border border-white/30" title="移除圖片"><Trash2 size={14} className="md:w-3 md:h-3" /></button>}
+                                {/* Mobile: Row Layout | Desktop: Column Layout */}
+                                <div className="relative z-10 pt-2 flex flex-row md:flex-col gap-4 md:gap-0">
+                                    {/* Left side on mobile: Image and basic info */}
+                                    <div className="flex-shrink-0">
+                                        <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-0 md:mb-5">
+                                            <div className="relative group/image">
+                                                <div className="w-16 h-16 md:w-14 md:h-14 bg-slate-100 dark:bg-zinc-800 rounded-2xl border border-slate-200 dark:border-zinc-700/50 flex items-center justify-center overflow-hidden relative">
+                                                    {p.clientAvatar ? <img src={p.clientAvatar} alt={p.clientName} className="w-full h-full object-cover" /> : <Folder size={24} className="text-slate-400 dark:text-zinc-600" />}
                                                 </div>
-                                            )}
+                                                {canEdit && (
+                                                    <div className="absolute inset-0 -m-1 bg-black/90 md:bg-black/80 rounded-2xl flex items-center justify-center gap-1.5 opacity-100 md:opacity-0 md:group-hover/image:opacity-100 transition-opacity z-20 backdrop-blur-[2px]">
+                                                        <label className="w-7 h-7 md:w-6 md:h-6 flex items-center justify-center bg-white/20 hover:bg-white text-white hover:text-black rounded-full cursor-pointer transition-all border border-white/30" onClick={(e) => e.stopPropagation()} title="上傳圖片">
+                                                            <input type="file" className="hidden" accept="image/*" onChange={(e) => handleProjectImageUpdate(e, p.id)} />
+                                                            <Camera size={14} className="md:w-3 md:h-3" />
+                                                        </label>
+                                                        <button onClick={(e) => handleOpenMediaLibrary(e, p.id)} className="w-7 h-7 md:w-6 md:h-6 flex items-center justify-center bg-white/20 hover:bg-lime-400 hover:text-black text-white rounded-full cursor-pointer transition-all border border-white/30" title="從媒體庫選擇">
+                                                            <ImageIcon size={14} className="md:w-3 md:h-3" />
+                                                        </button>
+                                                        {p.clientAvatar && <button onClick={(e) => handleRemoveProjectImage(e, p.id)} className="w-7 h-7 md:w-6 md:h-6 flex items-center justify-center bg-white/20 hover:bg-rose-500 text-white rounded-full cursor-pointer transition-all border border-white/30" title="移除圖片"><Trash2 size={14} className="md:w-3 md:h-3" /></button>}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="hidden md:flex flex-col items-end gap-1">
+                                                <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border ${p.riskLevel === 'High' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-500' : p.riskLevel === 'Medium' ? 'bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/30 text-orange-600 dark:text-orange-500' : 'bg-emerald-50 dark:bg-emerald-400/10 border-emerald-200 dark:border-emerald-400/30 text-emerald-700 dark:text-emerald-400'}`}>
+                                                    {p.riskLevel === 'High' ? '高風險' : p.riskLevel === 'Medium' ? '中風險' : '低風險'}
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div className="flex flex-col items-end gap-1">
-                                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border ${p.riskLevel === 'High' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-500' : p.riskLevel === 'Medium' ? 'bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/30 text-orange-600 dark:text-orange-500' : 'bg-emerald-50 dark:bg-emerald-400/10 border-emerald-200 dark:border-emerald-400/30 text-emerald-700 dark:text-emerald-400'}`}>
+                                    </div>
+
+                                    {/* Right side on mobile: Content | Full width on desktop */}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="mb-1 relative group/edit">
+                                            <h3 className="font-bold text-base md:text-lg text-slate-800 dark:text-white truncate pr-4">{p.name}</h3>
+                                            {canEdit && <Pencil size={12} className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 opacity-0 group-hover/edit:opacity-100 pointer-events-none" />}
+                                        </div>
+
+                                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                            {p.team && (
+                                                <span className="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-lime-100 dark:bg-lime-400/10 border border-lime-300 dark:border-lime-400/30 text-lime-700 dark:text-lime-400">
+                                                    {p.team}
+                                                </span>
+                                            )}
+                                            <span className={`md:hidden px-2.5 py-1 rounded-lg text-[10px] font-bold border ${p.riskLevel === 'High' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-500' : p.riskLevel === 'Medium' ? 'bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/30 text-orange-600 dark:text-orange-500' : 'bg-emerald-50 dark:bg-emerald-400/10 border-emerald-200 dark:border-emerald-400/30 text-emerald-700 dark:text-emerald-400'}`}>
                                                 {p.riskLevel === 'High' ? '高風險' : p.riskLevel === 'Medium' ? '中風險' : '低風險'}
                                             </span>
                                         </div>
-                                    </div>
 
-                                    <div className="mb-1 relative group/edit">
-                                        <h3 className="font-bold text-lg text-slate-800 dark:text-white truncate pr-4">{p.name}</h3>
-                                        {canEdit && <Pencil size={12} className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 opacity-0 group-hover/edit:opacity-100 pointer-events-none" />}
-                                    </div>
+                                        <p className="text-xs text-emerald-700 dark:text-emerald-400 font-bold mb-2 md:mb-3">{p.stage}</p>
+                                        <p className="hidden md:block text-slate-500 dark:text-zinc-500 text-xs mb-6 line-clamp-2 min-h-[2.5em] leading-relaxed">{p.description || '暫無描述...'}</p>
 
-                                    {p.team && (
-                                        <div className="mb-2">
-                                            <span className="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-lime-100 dark:bg-lime-400/10 border border-lime-300 dark:border-lime-400/30 text-lime-700 dark:text-lime-400">
-                                                {p.team}
-                                            </span>
-                                        </div>
-                                    )}
-
-                                    <p className="text-xs text-emerald-700 dark:text-emerald-400 font-bold mb-3">{p.stage}</p>
-                                    <p className="text-slate-500 dark:text-zinc-500 text-xs mb-6 line-clamp-2 min-h-[2.5em] leading-relaxed">{p.description || '暫無描述...'}</p>
-
-                                    {p.budget && (
-                                        <div className="mb-4 p-3 bg-slate-50 dark:bg-zinc-900/50 rounded-xl border border-slate-200 dark:border-zinc-800">
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wide">專案預算</span>
-                                                <div className="flex items-baseline gap-1">
-                                                    <span className="text-lg font-bold text-slate-800 dark:text-white">{parseInt(p.budget).toLocaleString()}</span>
-                                                    <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500">TWD</span>
+                                        {p.budget && (
+                                            <div className="hidden md:block mb-4 p-3 bg-slate-50 dark:bg-zinc-900/50 rounded-xl border border-slate-200 dark:border-zinc-800">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wide">專案預算</span>
+                                                    <div className="flex items-baseline gap-1">
+                                                        <span className="text-lg font-bold text-slate-800 dark:text-white">{parseInt(p.budget).toLocaleString()}</span>
+                                                        <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500">TWD</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
 
-                                    <div className="space-y-3 pt-4 border-t border-slate-100 dark:border-zinc-800">
-                                        <div className="flex justify-between text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wide"><span>完成度</span><span>{p.progress}%</span></div>
-                                        <div className="h-1.5 w-full bg-slate-200 dark:bg-zinc-800 rounded-full overflow-hidden">
-                                            <div className="h-full bg-lime-500 dark:bg-lime-400 rounded-full shadow-[0_0_10px_rgba(217,248,80,0.5)] transition-all duration-1000" style={{ width: `${p.progress}%` }}></div>
-                                        </div>
-                                        <div className="flex items-center justify-between pt-2">
-                                            <div className="flex -space-x-2">
-                                                {/* 這裡也加上了安全讀取 */}
-                                                {members.filter(m => Array.isArray(p.teamMembers) && p.teamMembers.includes(m.id)).slice(0, 3).map((m, i) => (
-                                                    <div key={i} className="w-6 h-6 rounded-full bg-slate-200 dark:bg-zinc-800 border border-white dark:border-zinc-900 flex items-center justify-center text-[8px] font-bold text-slate-600 dark:text-zinc-400">{m.name.charAt(0)}</div>
-                                                ))}
-                                                {Array.isArray(p.teamMembers) && p.teamMembers.length > 3 && <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-zinc-800 border border-white dark:border-zinc-900 flex items-center justify-center text-[8px] text-slate-600 dark:text-zinc-500">+{p.teamMembers.length - 3}</div>}
+                                        <div className="space-y-2 md:space-y-3 md:pt-4 md:border-t border-slate-100 dark:border-zinc-800">
+                                            <div className="flex justify-between text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wide"><span>完成度</span><span>{p.progress}%</span></div>
+                                            <div className="h-1.5 w-full bg-slate-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                                <div className="h-full bg-lime-500 dark:bg-lime-400 rounded-full shadow-[0_0_10px_rgba(217,248,80,0.5)] transition-all duration-1000" style={{ width: `${p.progress}%` }}></div>
                                             </div>
-                                            <span className={`text-[10px] font-bold px-2 py-1 rounded-lg ${tasks.length === 0 ? 'text-rose-500 bg-rose-500/10' : 'text-slate-500 dark:text-zinc-500 bg-slate-100 dark:bg-zinc-800'}`}>{tasks.length} 任務</span>
+                                            <div className="flex items-center justify-between pt-1 md:pt-2">
+                                                <div className="flex -space-x-2">
+                                                    {/* 這裡也加上了安全讀取 */}
+                                                    {members.filter(m => Array.isArray(p.teamMembers) && p.teamMembers.includes(m.id)).slice(0, 3).map((m, i) => (
+                                                        <div key={i} className="w-6 h-6 rounded-full bg-slate-200 dark:bg-zinc-800 border border-white dark:border-zinc-900 flex items-center justify-center text-[8px] font-bold text-slate-600 dark:text-zinc-400">{m.name.charAt(0)}</div>
+                                                    ))}
+                                                    {Array.isArray(p.teamMembers) && p.teamMembers.length > 3 && <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-zinc-800 border border-white dark:border-zinc-900 flex items-center justify-center text-[8px] text-slate-600 dark:text-zinc-500">+{p.teamMembers.length - 3}</div>}
+                                                </div>
+                                                <span className={`text-[10px] font-bold px-2 py-1 rounded-lg ${tasks.length === 0 ? 'text-rose-500 bg-rose-500/10' : 'text-slate-500 dark:text-zinc-500 bg-slate-100 dark:bg-zinc-800'}`}>{tasks.length} 任務</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

@@ -13,7 +13,7 @@ import { MediaLibraryView } from './components/MediaLibraryView';
 import { CalendarView } from './components/CalendarView';
 import { INITIAL_PROJECTS, INITIAL_MEMBERS, DEFAULT_STAGES } from './constants';
 import { Project, Member, Announcement } from './types';
-import { Plus, Folder, Camera, Trash2, Pencil, CheckCircle2, Zap, LayoutGrid, Loader2, RefreshCw, AlertTriangle, AlertOctagon, X, ChevronRight, GripVertical, User, Check, Calendar, Layers, Tag } from 'lucide-react';
+import { Plus, Folder, Camera, Trash2, Pencil, CheckCircle2, Zap, LayoutGrid, Loader2, RefreshCw, AlertTriangle, AlertOctagon, X, ChevronRight, GripVertical, User, Check, Calendar, Layers, Tag, Image as ImageIcon, Search } from 'lucide-react';
 
 import { auth, db, createSecondaryUser } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
@@ -150,6 +150,19 @@ export const App: React.FC = () => {
         };
     }, []);
 
+    // Load media items from Firestore
+    useEffect(() => {
+        const unsubMedia = onSnapshot(collection(db, 'media'), (snapshot) => {
+            const items = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            } as { id: string; url: string; uploadedBy: string; uploadedAt: string; team: string; fileName: string }));
+            setMediaItems(items);
+        });
+
+        return () => unsubMedia();
+    }, []);
+
     // Generate Notifications (現在這裡安全了，因為 teamMembers 一定是陣列)
     useEffect(() => {
         if (!currentUser) return;
@@ -263,6 +276,13 @@ export const App: React.FC = () => {
 
     // Project team selection
     const [newProjectTeam, setNewProjectTeam] = useState<string>('');
+
+    // Media Library Selection states
+    const [showMediaLibraryModal, setShowMediaLibraryModal] = useState(false);
+    const [selectedProjectForImage, setSelectedProjectForImage] = useState<string | null>(null);
+    const [mediaItems, setMediaItems] = useState<Array<{ id: string; url: string; uploadedBy: string; uploadedAt: string; team: string; fileName: string }>>([]);
+    const [mediaSearchQuery, setMediaSearchQuery] = useState('');
+    const [mediaTeamFilter, setMediaTeamFilter] = useState('');
 
     useEffect(() => {
         if (showNewProjectModal) {
@@ -657,6 +677,25 @@ export const App: React.FC = () => {
         }
     };
 
+    const handleOpenMediaLibrary = (e: React.MouseEvent, projectId: string) => {
+        e.stopPropagation();
+        setSelectedProjectForImage(projectId);
+        setShowMediaLibraryModal(true);
+        setMediaSearchQuery('');
+        setMediaTeamFilter('');
+    };
+
+    const handleSelectMediaImage = (url: string) => {
+        if (selectedProjectForImage) {
+            const project = projects.find(p => p.id === selectedProjectForImage);
+            if (project) {
+                handleUpdateProject({ ...project, clientAvatar: url });
+            }
+        }
+        setShowMediaLibraryModal(false);
+        setSelectedProjectForImage(null);
+    };
+
     const handleResetData = async () => {
         if (window.confirm("確定要將資料庫重置為「預設演示資料」嗎？這將會覆蓋/新增雲端資料。")) {
             try {
@@ -768,7 +807,7 @@ export const App: React.FC = () => {
                                 {canEdit && (
                                     <button
                                         onClick={(e) => handleDeleteProject(e, p.id)}
-                                        className="absolute top-3 right-3 p-2 text-slate-400 dark:text-zinc-600 hover:text-rose-500 dark:hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-full transition-all opacity-0 group-hover:opacity-100 z-50"
+                                        className="absolute top-3 right-3 p-2 text-slate-400 dark:text-zinc-600 hover:text-rose-500 dark:hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-full transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 z-50"
                                         title="刪除專案"
                                     >
                                         <Trash2 size={16} />
@@ -782,11 +821,14 @@ export const App: React.FC = () => {
                                                 {p.clientAvatar ? <img src={p.clientAvatar} alt={p.clientName} className="w-full h-full object-cover" /> : <Folder size={24} className="text-slate-400 dark:text-zinc-600" />}
                                             </div>
                                             {canEdit && (
-                                                <div className="absolute inset-0 -m-1 bg-black/80 rounded-2xl flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20 backdrop-blur-[2px]">
-                                                    <label className="w-6 h-6 flex items-center justify-center bg-zinc-700 hover:bg-white text-white hover:text-black rounded-full cursor-pointer transition-all" onClick={(e) => e.stopPropagation()} title="更換圖片">
+                                                <div className="absolute inset-0 -m-1 bg-black/80 rounded-2xl flex items-center justify-center gap-1.5 opacity-100 md:opacity-0 md:group-hover/image:opacity-100 transition-opacity z-20 backdrop-blur-[2px]">
+                                                    <label className="w-6 h-6 flex items-center justify-center bg-zinc-700 hover:bg-white text-white hover:text-black rounded-full cursor-pointer transition-all" onClick={(e) => e.stopPropagation()} title="上傳圖片">
                                                         <input type="file" className="hidden" accept="image/*" onChange={(e) => handleProjectImageUpdate(e, p.id)} />
                                                         <Camera size={12} />
                                                     </label>
+                                                    <button onClick={(e) => handleOpenMediaLibrary(e, p.id)} className="w-6 h-6 flex items-center justify-center bg-zinc-700 hover:bg-lime-400 hover:text-black text-white rounded-full cursor-pointer transition-all" title="從媒體庫選擇">
+                                                        <ImageIcon size={12} />
+                                                    </button>
                                                     {p.clientAvatar && <button onClick={(e) => handleRemoveProjectImage(e, p.id)} className="w-6 h-6 flex items-center justify-center bg-zinc-700 hover:bg-rose-500 text-white rounded-full cursor-pointer transition-all" title="移除圖片"><Trash2 size={12} /></button>}
                                                 </div>
                                             )}
@@ -1132,6 +1174,94 @@ export const App: React.FC = () => {
                         <div className="flex justify-end gap-3 mt-8 flex-shrink-0">
                             <button onClick={() => setShowNewProjectModal(false)} className="px-6 py-2.5 text-sm font-bold text-slate-500 dark:text-zinc-500 hover:text-slate-800 dark:hover:text-white transition-colors">取消</button>
                             <button onClick={handleCreateProject} className="bg-lime-400 text-black px-8 py-2.5 rounded-xl text-sm font-bold hover:bg-lime-300 shadow-lg shadow-lime-400/20">建立</button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {/* Media Library Selection Modal */}
+            {showMediaLibraryModal && createPortal(
+                <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowMediaLibraryModal(false)}>
+                    <div className="bg-white dark:bg-[#18181b] rounded-3xl shadow-2xl border border-slate-200 dark:border-zinc-800 max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+                        {/* Header */}
+                        <div className="p-6 border-b border-slate-200 dark:border-zinc-800 flex justify-between items-center flex-shrink-0">
+                            <div>
+                                <h3 className="text-xl font-bold text-slate-800 dark:text-white">從媒體庫選擇圖片</h3>
+                                <p className="text-sm text-slate-400 dark:text-zinc-500 mt-1">點擊圖片即可選擇</p>
+                            </div>
+                            <button onClick={() => setShowMediaLibraryModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-full transition-colors">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {/* Filters */}
+                        <div className="p-6 border-b border-slate-200 dark:border-zinc-800 flex gap-3 flex-shrink-0">
+                            <select
+                                value={mediaTeamFilter}
+                                onChange={(e) => setMediaTeamFilter(e.target.value)}
+                                className="px-4 py-2.5 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-lime-500 outline-none"
+                            >
+                                <option value="">全部團隊</option>
+                                {teams.map(team => (
+                                    <option key={team} value={team}>{team}</option>
+                                ))}
+                            </select>
+
+                            <div className="relative flex-1">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500" size={18} />
+                                <input
+                                    type="text"
+                                    placeholder="搜尋檔名..."
+                                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:border-lime-500 outline-none"
+                                    value={mediaSearchQuery}
+                                    onChange={(e) => setMediaSearchQuery(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Media Grid */}
+                        <div className="p-6 overflow-y-auto flex-1">
+                            {(() => {
+                                const filteredMedia = mediaItems.filter(item => {
+                                    const matchesSearch = item.fileName.toLowerCase().includes(mediaSearchQuery.toLowerCase());
+                                    const matchesTeam = mediaTeamFilter === '' || item.team === mediaTeamFilter;
+                                    return matchesSearch && matchesTeam;
+                                });
+
+                                if (filteredMedia.length === 0) {
+                                    return (
+                                        <div className="py-20 flex flex-col items-center justify-center text-slate-400 dark:text-zinc-600">
+                                            <div className="w-24 h-24 bg-slate-100 dark:bg-zinc-800 rounded-3xl flex items-center justify-center mb-6 text-slate-300 dark:text-zinc-600">
+                                                <ImageIcon size={40} />
+                                            </div>
+                                            <h3 className="text-lg font-bold text-slate-500 dark:text-zinc-500">沒有找到圖片</h3>
+                                            <p className="text-sm">試試看不同的關鍵字或團隊篩選</p>
+                                        </div>
+                                    );
+                                }
+
+                                return (
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                        {filteredMedia.map((item) => (
+                                            <div
+                                                key={item.id}
+                                                className="relative aspect-square rounded-xl overflow-hidden cursor-pointer border-2 border-slate-200 dark:border-zinc-800 hover:border-lime-400 dark:hover:border-lime-500 transition-all group"
+                                                onClick={() => handleSelectMediaImage(item.url)}
+                                            >
+                                                <img src={item.url} alt={item.fileName} className="w-full h-full object-cover" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
+                                                    <h4 className="text-white font-bold text-xs truncate">{item.fileName}</h4>
+                                                    <div className="flex justify-between items-center mt-1">
+                                                        <span className="text-slate-300 text-[10px] truncate">{item.team}</span>
+                                                        <span className="text-slate-400 text-[10px]">{new Date(item.uploadedAt).toLocaleDateString()}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                );
+                            })()}
                         </div>
                     </div>
                 </div>,

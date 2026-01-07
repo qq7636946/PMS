@@ -625,7 +625,7 @@ export const App: React.FC = () => {
             completedStages: [],
             progress: 0,
             riskLevel: newProjectData.risk,
-            team: newProjectTeam || undefined, // Add team assignment
+            team: newProjectTeam || '', // Ensure team is never undefined
             teamMembers: newProjectMembers,
             startDate: newProjectData.startDate,
             dueDate: newProjectData.dueDate,

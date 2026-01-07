@@ -50,6 +50,7 @@ export interface Member {
   password?: string; // Optional for mock data, required for creation
   role: string; // Job Title e.g., 'Frontend Dev'
   accessLevel: AccessLevel; // System Permission e.g., 'Admin'
+  team?: string; // Team assignment (e.g., "A團隊", "B團隊")
   avatar?: string;
   status?: 'Active' | 'Suspended'; // Account Status
 }
@@ -96,6 +97,7 @@ export interface Project {
   completedStages: string[]; // List of specific stages that are verified as done
   progress: number; // 0-100
   riskLevel: 'Low' | 'Medium' | 'High';
+  team?: string; // Team assignment for project
   teamMembers: string[]; // Stores Member IDs
   startDate: string;
   dueDate: string;

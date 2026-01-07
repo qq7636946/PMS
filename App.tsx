@@ -234,6 +234,10 @@ export const App: React.FC = () => {
     const [newStageInput, setNewStageInput] = useState('');
     const [newProjectMembers, setNewProjectMembers] = useState<string[]>([]);
 
+    // Category editing states
+    const [editingCategory, setEditingCategory] = useState<string | null>(null);
+    const [editCategoryValue, setEditCategoryValue] = useState('');
+
     useEffect(() => {
         if (showNewProjectModal) {
             setNewProjectStages([...defaultStages]);
@@ -255,13 +259,30 @@ export const App: React.FC = () => {
 
         let hasAccess = false;
         if (currentUser) {
-            // Admin and Manager can see all projects
-            if (['Admin', 'Manager'].includes(currentUser.accessLevel)) {
+            // Admin can see ALL projects regardless of team
+            if (currentUser.accessLevel === 'Admin') {
                 hasAccess = true;
-            } else {
-                // SeniorMember and Member only see assigned projects
-                const members = p.teamMembers || [];
-                hasAccess = members.includes(currentUser.id);
+            }
+            // Manager can see all projects (existing behavior)
+            else if (currentUser.accessLevel === 'Manager') {
+                hasAccess = true;
+            }
+            // Team-based filtering for other members
+            else {
+                // Check if user's team matches project's team
+                const userTeam = currentUser.team;
+                const projectTeam = p.team;
+
+                // If user has a team, only show projects from their team OR projects they're assigned to
+                if (userTeam) {
+                    const isTeamProject = projectTeam === userTeam;
+                    const isAssigned = (p.teamMembers || []).includes(currentUser.id);
+                    hasAccess = isTeamProject || isAssigned;
+                } else {
+                    // If user has no team, only show assigned projects
+                    const members = p.teamMembers || [];
+                    hasAccess = members.includes(currentUser.id);
+                }
             }
         }
 
@@ -274,6 +295,38 @@ export const App: React.FC = () => {
         } catch (error) {
             console.error("更新失敗", error);
         }
+    };
+
+    // Category editing handlers
+    const handleStartEditCategory = (category: string) => {
+        setEditingCategory(category);
+        setEditCategoryValue(category);
+    };
+
+    const handleSaveCategory = async (oldCategory: string) => {
+        if (!editCategoryValue.trim() || editCategoryValue === oldCategory) {
+            setEditingCategory(null);
+            return;
+        }
+
+        // Update all projects with this category
+        const projectsToUpdate = projects.filter(p => p.category === oldCategory);
+        try {
+            await Promise.all(
+                projectsToUpdate.map(p =>
+                    setDoc(doc(db, "projects", p.id), { ...p, category: editCategoryValue.trim() })
+                )
+            );
+            setEditingCategory(null);
+        } catch (error) {
+            console.error("分類更新失敗", error);
+            alert("分類更新失敗");
+        }
+    };
+
+    const handleCancelEditCategory = () => {
+        setEditingCategory(null);
+        setEditCategoryValue('');
     };
 
     const handleDeleteProject = async (e: React.MouseEvent, projectId: string) => {
@@ -503,7 +556,7 @@ export const App: React.FC = () => {
 
     const renderGroupedProjects = () => {
         const grouped = filteredProjects.reduce((acc, project) => {
-            const cat = project.category || '其他';
+            const cat = project.category || '未分類';
             if (!acc[cat]) acc[cat] = [];
             acc[cat].push(project);
             return acc;
@@ -515,8 +568,44 @@ export const App: React.FC = () => {
                     <div className="bg-slate-200 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 p-2 rounded-xl transition-colors">
                         <Tag size={16} />
                     </div>
-                    <h3 className="font-bold text-slate-700 dark:text-zinc-300 text-lg">{category}</h3>
-                    <span className="text-xs bg-slate-200 dark:bg-zinc-800 text-slate-600 dark:text-zinc-500 px-2.5 py-1 rounded-full font-bold">{projs.length}</span>
+                    {editingCategory === category ? (
+                        <div className="flex items-center gap-2 flex-1">
+                            <input
+                                type="text"
+                                value={editCategoryValue}
+                                onChange={(e) => setEditCategoryValue(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleSaveCategory(category);
+                                    if (e.key === 'Escape') handleCancelEditCategory();
+                                }}
+                                className="flex-1 max-w-xs bg-white dark:bg-zinc-900 border-2 border-lime-400 dark:border-lime-500 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 dark:text-white focus:outline-none"
+                                autoFocus
+                            />
+                            <button
+                                onClick={() => handleSaveCategory(category)}
+                                className="px-4 py-2 bg-lime-400 text-black rounded-xl text-xs font-bold hover:bg-lime-500 transition-all"
+                            >
+                                儲存
+                            </button>
+                            <button
+                                onClick={handleCancelEditCategory}
+                                className="px-4 py-2 bg-slate-200 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 rounded-xl text-xs font-bold hover:bg-slate-300 dark:hover:bg-zinc-700 transition-all"
+                            >
+                                取消
+                            </button>
+                        </div>
+                    ) : (
+                        <>
+                            <h3
+                                className="font-bold text-slate-700 dark:text-zinc-300 text-lg cursor-pointer hover:text-lime-500 dark:hover:text-lime-400 transition-colors"
+                                onClick={() => handleStartEditCategory(category)}
+                                title="點擊編輯分類名稱"
+                            >
+                                {category}
+                            </h3>
+                            <span className="text-xs bg-slate-200 dark:bg-zinc-800 text-slate-600 dark:text-zinc-500 px-2.5 py-1 rounded-full font-bold">{projs.length}</span>
+                        </>
+                    )}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 w-full">
                     {projs.map(p => {

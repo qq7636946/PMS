@@ -541,14 +541,7 @@ export const App: React.FC = () => {
                         const isMissingInfo = !p.dueDate || !p.startDate || tasks.length === 0 || hasStageGap;
 
                         return (
-                            <div key={p.id} onClick={() => { setSelectedProjectId(p.id); setActiveView('projects'); }} className={`bg-white dark:bg-[#18181b] rounded-[28px] p-6 border transition-all cursor-pointer group relative overflow-hidden shadow-lg shadow-slate-200/50 dark:shadow-none hover:shadow-xl dark:hover:shadow-lime-400/20 hover:border-lime-400/30 hover:-translate-y-1 ${isMissingInfo ? 'border-rose-500/50' : 'border-slate-200 dark:border-zinc-800'}`}>
-
-                                {isMissingInfo && (
-                                    <div className="absolute top-0 left-0 bg-rose-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-br-2xl z-20 flex items-center gap-1 shadow-md pointer-events-none">
-                                        <AlertTriangle size={12} />
-                                        {hasStageGap ? '階段缺失' : '資料缺失'}
-                                    </div>
-                                )}
+                            <div key={p.id} onClick={() => { setSelectedProjectId(p.id); setActiveView('projects'); }} className="bg-white dark:bg-[#18181b] rounded-[28px] p-6 border border-slate-200 dark:border-zinc-800 transition-all cursor-pointer group relative overflow-hidden shadow-lg shadow-slate-200/50 dark:shadow-none hover:shadow-xl dark:hover:shadow-lime-400/20 hover:border-lime-400/30 hover:-translate-y-1">
 
                                 {canEdit && (
                                     <button

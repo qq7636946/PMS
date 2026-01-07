@@ -11,9 +11,11 @@ interface SidebarProps {
     currentUser: Member | null;
     isMobile?: boolean;
     onCloseMobile?: () => void;
+    isDark?: boolean;
+    onToggleTheme?: () => void;
 }
 
-const SidebarContent: React.FC<SidebarProps> = ({ activeView, setActiveView, onNewProject, onLogout, currentUser, isMobile, onCloseMobile }) => {
+const SidebarContent: React.FC<SidebarProps> = ({ activeView, setActiveView, onNewProject, onLogout, currentUser, isMobile, onCloseMobile, isDark, onToggleTheme }) => {
     const navItems = [
         { id: 'dashboard', label: '總覽儀表板', icon: LayoutDashboard, roles: ['Admin', 'Manager', 'Member'] },
         { id: 'projects', label: '專案列表', icon: FolderKanban, roles: ['Admin', 'Manager', 'Member'] },
@@ -72,6 +74,19 @@ const SidebarContent: React.FC<SidebarProps> = ({ activeView, setActiveView, onN
                     ))}
                 </div>
 
+                {/* Theme Toggle - Mobile Only */}
+                {isMobile && onToggleTheme && (
+                    <div className="mt-4 pt-4 border-t border-slate-200 dark:border-zinc-800 flex-shrink-0">
+                        <button
+                            onClick={onToggleTheme}
+                            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-200 text-sm font-bold text-slate-500 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white"
+                        >
+                            {isDark ? <Sun size={20} className="text-slate-400 dark:text-zinc-500" strokeWidth={2} /> : <Moon size={20} className="text-slate-400 dark:text-zinc-500" strokeWidth={2} />}
+                            <span className="translate-y-[1px]">{isDark ? '淺色模式' : '深色模式'}</span>
+                        </button>
+                    </div>
+                )}
+
                 {canCreateProject && (
                     <div className="mt-auto pt-4 pb-2 flex-shrink-0">
                         <div className="bg-slate-900 dark:bg-zinc-800 rounded-2xl p-5 text-white relative overflow-hidden group cursor-pointer hover:bg-slate-800 dark:hover:bg-zinc-700 transition-colors border border-transparent dark:border-zinc-700/50" onClick={onNewProject}>
@@ -121,6 +136,7 @@ export const Layout: React.FC<{
     const [showNotifications, setShowNotifications] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
     const [avatarError, setAvatarError] = useState(false);
 
     // Theme State
@@ -367,7 +383,7 @@ export const Layout: React.FC<{
                 <div className="fixed inset-0 z-50 md:hidden">
                     <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)}></div>
                     <div className="absolute top-0 left-0 h-full w-[85%] max-w-[280px] bg-white dark:bg-[#18181b] shadow-2xl animate-enter border-r border-slate-200 dark:border-zinc-800">
-                        <SidebarContent activeView={activeView} setActiveView={setActiveView} onNewProject={onNewProject} onLogout={onLogout} currentUser={currentUser} isMobile={true} onCloseMobile={() => setMobileMenuOpen(false)} />
+                        <SidebarContent activeView={activeView} setActiveView={setActiveView} onNewProject={onNewProject} onLogout={onLogout} currentUser={currentUser} isMobile={true} onCloseMobile={() => setMobileMenuOpen(false)} isDark={isDark} onToggleTheme={toggleTheme} />
                     </div>
                 </div>
             )}
@@ -399,14 +415,14 @@ export const Layout: React.FC<{
                                 className="bg-transparent border-none py-2.5 pl-10 pr-4 w-full text-sm focus:ring-0 placeholder:text-slate-400 dark:placeholder:text-zinc-600 font-medium text-slate-800 dark:text-white"
                             />
                         </div>
-                        <button className="md:hidden w-10 h-10 bg-white dark:bg-[#27272a] rounded-xl border border-slate-200 dark:border-zinc-800 flex items-center justify-center text-slate-500 dark:text-zinc-400">
+                        <button onClick={(e) => { e.stopPropagation(); setMobileSearchOpen(true); }} className="md:hidden w-10 h-10 bg-white dark:bg-[#27272a] rounded-xl border border-slate-200 dark:border-zinc-800 flex items-center justify-center text-slate-500 dark:text-zinc-400">
                             <Search size={20} />
                         </button>
 
-                        {/* Theme Toggle (New Location) */}
+                        {/* Theme Toggle - Desktop Only */}
                         <button
                             onClick={toggleTheme}
-                            className="w-12 h-12 rounded-2xl border flex items-center justify-center transition-all bg-white dark:bg-[#27272a] border-slate-200 dark:border-zinc-800 text-slate-400 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800"
+                            className="hidden md:flex w-12 h-12 rounded-2xl border items-center justify-center transition-all bg-white dark:bg-[#27272a] border-slate-200 dark:border-zinc-800 text-slate-400 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800"
                             title="切換主題"
                         >
                             {isDark ? <Sun size={20} /> : <Moon size={20} />}
@@ -497,6 +513,30 @@ export const Layout: React.FC<{
                     </div>
                 </div>
             </main>
+
+            {/* Mobile Search Modal */}
+            {mobileSearchOpen && (
+                <div className="fixed inset-0 z-50 md:hidden" onClick={() => setMobileSearchOpen(false)}>
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+                    <div className="absolute top-0 left-0 right-0 p-4 animate-enter" onClick={(e) => e.stopPropagation()}>
+                        <div className="bg-white dark:bg-[#18181b] rounded-2xl shadow-2xl border border-slate-200 dark:border-zinc-800 overflow-hidden">
+                            <div className="p-4 flex items-center gap-3">
+                                <Search className="text-slate-400 dark:text-zinc-500 flex-shrink-0" size={20} />
+                                <input
+                                    type="text"
+                                    placeholder="搜尋專案..."
+                                    autoFocus
+                                    onChange={(e) => onSearch && onSearch(e.target.value)}
+                                    className="flex-1 bg-transparent border-none py-2 text-base focus:ring-0 placeholder:text-slate-400 dark:placeholder:text-zinc-600 font-medium text-slate-800 dark:text-white outline-none"
+                                />
+                                <button onClick={() => setMobileSearchOpen(false)} className="p-2 text-slate-400 dark:text-zinc-500 hover:text-slate-900 dark:hover:text-white">
+                                    <X size={20} />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

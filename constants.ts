@@ -5,20 +5,7 @@ import { Project, Status, Priority, Member } from './types';
 const getAvatar = (name: string) => `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=256`;
 
 export const DEFAULT_STAGES = [
-  '洽詢',
-  '簽約',
-  '視覺設計',
-  '第一次修改',
-  '第二次修改',
-  '第三次修改',
-  '前端開發',
-  '前端修改',
-  '後端開發',
-  '後端修改',
-  '其他',
-  '專案完成',
-  '上線',
-  '結案'
+  '洽詢'
 ];
 
 export const INITIAL_MEMBERS: Member[] = [
@@ -35,17 +22,17 @@ export const INITIAL_PROJECTS: Project[] = [
     name: 'TechFlow 企業官網改版',
     clientName: 'TechFlow 科技',
     category: '網頁設計',
-    clientAvatar: '', 
+    clientAvatar: '',
     description: '針對品牌重塑進行的響應式 (RWD) 官網改版，包含動效設計與 CMS 後台建置。',
     stage: '前端開發',
     stages: DEFAULT_STAGES,
     completedStages: [
-        '洽詢', 
-        '簽約', 
-        '視覺設計', 
-        '第一次修改', 
-        '第二次修改', 
-        '第三次修改'
+      '洽詢',
+      '簽約',
+      '視覺設計',
+      '第一次修改',
+      '第二次修改',
+      '第三次修改'
     ],
     progress: 65,
     riskLevel: 'Low',
@@ -65,14 +52,14 @@ export const INITIAL_PROJECTS: Project[] = [
     },
     notes: '客戶強調首頁 Hero Section 的 Loading 動畫效能，需特別注意行動裝置表現。第二期款項已收到。',
     chatMessages: [
-        { id: 'c1', senderId: 'admin-main', content: '客戶提到 Hero Section 的動畫希望能再順暢一點，前端這邊有問題嗎？', timestamp: '2025-05-18T10:00:00' },
-        { id: 'c2', senderId: 'm3', content: '沒問題，我會調整 GSAP 的參數。', timestamp: '2025-05-18T10:15:00' },
-        { id: 'c3', senderId: 'm2', content: '設計稿已經更新，請參考 v2 版本。', timestamp: '2025-05-19T09:30:00' }
+      { id: 'c1', senderId: 'admin-main', content: '客戶提到 Hero Section 的動畫希望能再順暢一點，前端這邊有問題嗎？', timestamp: '2025-05-18T10:00:00' },
+      { id: 'c2', senderId: 'm3', content: '沒問題，我會調整 GSAP 的參數。', timestamp: '2025-05-18T10:15:00' },
+      { id: 'c3', senderId: 'm2', content: '設計稿已經更新，請參考 v2 版本。', timestamp: '2025-05-19T09:30:00' }
     ],
     transactions: [
-        { id: 'tx1', title: '伺服器架設費用', amount: 2400, date: '2025-06-12', category: 'Server', type: 'expense' },
-        { id: 'tx2', title: '圖庫授權購買', amount: 5000, date: '2025-05-20', category: 'Design', type: 'expense' },
-        { id: 'tx3', title: '外包插畫師', amount: 12000, date: '2025-05-25', category: 'Design', type: 'expense' }
+      { id: 'tx1', title: '伺服器架設費用', amount: 2400, date: '2025-06-12', category: 'Server', type: 'expense' },
+      { id: 'tx2', title: '圖庫授權購買', amount: 5000, date: '2025-05-20', category: 'Design', type: 'expense' },
+      { id: 'tx3', title: '外包插畫師', amount: 12000, date: '2025-05-25', category: 'Design', type: 'expense' }
     ],
     proofing: [],
     unreadCount: 3,
@@ -87,9 +74,9 @@ export const INITIAL_PROJECTS: Project[] = [
         startDate: '2025-05-01',
         dueDate: '2025-05-10',
         subtasks: [
-            {id: 's1', title: '定義 Typography (H1-H6, Body)', completed: true}, 
-            {id: 's2', title: '設定主要與次要色票 (Color Palette)', completed: true},
-            {id: 's3', title: '製作 Button 與 Input 元件狀態', completed: true}
+          { id: 's1', title: '定義 Typography (H1-H6, Body)', completed: true },
+          { id: 's2', title: '設定主要與次要色票 (Color Palette)', completed: true },
+          { id: 's3', title: '製作 Button 與 Input 元件狀態', completed: true }
         ],
         aiSuggestions: '建議確認色彩對比度是否符合 WCAG 2.1 AA 標準。'
       },
@@ -103,8 +90,8 @@ export const INITIAL_PROJECTS: Project[] = [
         startDate: '2025-05-12',
         dueDate: '2025-06-20',
         subtasks: [
-            {id: 's4', title: 'Hero Section 動畫實作', completed: false},
-            {id: 's5', title: 'RWD 手機版樣式調整', completed: false}
+          { id: 's4', title: 'Hero Section 動畫實作', completed: false },
+          { id: 's5', title: 'RWD 手機版樣式調整', completed: false }
         ],
       },
       {
@@ -125,13 +112,13 @@ export const INITIAL_PROJECTS: Project[] = [
     name: 'FreshMart 生鮮電商 App',
     category: 'App 開發',
     clientName: 'FreshMart 生鮮',
-    clientAvatar: '', 
+    clientAvatar: '',
     description: 'iOS 與 Android 雙平台生鮮購物應用程式開發，包含金流串接。',
     stage: '視覺設計',
     stages: DEFAULT_STAGES,
     completedStages: [
-        '洽詢',
-        '簽約'
+      '洽詢',
+      '簽約'
     ],
     progress: 30,
     riskLevel: 'High',

@@ -125,7 +125,8 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
                     role: cleanRole,
                     accessLevel: formData.accessLevel as AccessLevel,
                     status: formData.status as 'Active' | 'Suspended',
-                    team: formData.team
+                    team: formData.team,
+                    teams: formData.teams // Save teams array
                 };
                 onUpdateMember(updatedMember);
                 setEditingMember(null);
@@ -140,6 +141,7 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
                     status: formData.status as 'Active' | 'Suspended' || 'Active',
                     accessLevel: formData.accessLevel as AccessLevel || 'Member',
                     team: formData.team,
+                    teams: formData.teams, // Save teams array
                     avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(cleanName)}&background=random`
                 });
                 setShowAddForm(false);

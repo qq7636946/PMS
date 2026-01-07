@@ -1,9 +1,10 @@
 
-
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Member, AccessLevel } from '../types';
 import { Trash2, UserPlus, Mail, X, Lock, KeyRound, UserCheck, UserX, Loader2, Edit2, Users, Plus, CheckCircle2 } from 'lucide-react';
+import { db } from '../firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 interface TeamViewProps {
     members: Member[];
@@ -571,19 +572,31 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
                                         type="text"
                                         placeholder="輸入新團隊名稱..."
                                         className="flex-1 px-3 py-2 rounded-lg border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-slate-700 dark:text-white text-xs font-bold focus:outline-none focus:ring-2 ring-emerald-400"
-                                        onKeyPress={(e) => {
+                                        onKeyPress={async (e) => {
                                             if (e.key === 'Enter') {
                                                 const input = e.currentTarget;
                                                 const newTeamName = input.value.trim();
                                                 if (newTeamName) {
                                                     const currentTeams = formData.teams || (formData.team ? [formData.team] : []);
                                                     if (!currentTeams.includes(newTeamName)) {
+                                                        // Add to member's teams
                                                         const newTeams = [...currentTeams, newTeamName];
                                                         setFormData({
                                                             ...formData,
                                                             teams: newTeams,
                                                             team: newTeams[0] || ''
                                                         });
+
+                                                        // Auto-create team in Firestore if it doesn't exist
+                                                        if (!teams.includes(newTeamName)) {
+                                                            try {
+                                                                const teamId = Date.now().toString();
+                                                                await setDoc(doc(db, "teams", teamId), { name: newTeamName });
+                                                            } catch (error) {
+                                                                console.error("Failed to create team:", error);
+                                                            }
+                                                        }
+
                                                         input.value = '';
                                                     }
                                                 }
@@ -593,18 +606,30 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
                                     />
                                     <button
                                         type="button"
-                                        onClick={(e) => {
+                                        onClick={async (e) => {
                                             const input = e.currentTarget.previousElementSibling as HTMLInputElement;
                                             const newTeamName = input.value.trim();
                                             if (newTeamName) {
                                                 const currentTeams = formData.teams || (formData.team ? [formData.team] : []);
                                                 if (!currentTeams.includes(newTeamName)) {
+                                                    // Add to member's teams
                                                     const newTeams = [...currentTeams, newTeamName];
                                                     setFormData({
                                                         ...formData,
                                                         teams: newTeams,
                                                         team: newTeams[0] || ''
                                                     });
+
+                                                    // Auto-create team in Firestore if it doesn't exist
+                                                    if (!teams.includes(newTeamName)) {
+                                                        try {
+                                                            const teamId = Date.now().toString();
+                                                            await setDoc(doc(db, "teams", teamId), { name: newTeamName });
+                                                        } catch (error) {
+                                                            console.error("Failed to create team:", error);
+                                                        }
+                                                    }
+
                                                     input.value = '';
                                                 }
                                             }

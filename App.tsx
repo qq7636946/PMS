@@ -294,12 +294,7 @@ export const App: React.FC = () => {
             if (currentUser.accessLevel === 'Admin') {
                 hasAccess = true;
             }
-            // Manager can see all projects (existing behavior)
-            else if (currentUser.accessLevel === 'Manager') {
-                hasAccess = true;
-            }
-            // Team-based filtering for other members
-            // Team-based filtering for other members
+            // Team-based filtering for all other users (Manager, SeniorMember, Member)
             else {
                 // Check if user's team matches project's team
                 const userTeam = currentUser.team || '';

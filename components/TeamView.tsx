@@ -29,8 +29,11 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
     const [editingTeam, setEditingTeam] = useState<string | null>(null);
     const [editTeamName, setEditTeamName] = useState('');
 
+
     const canManageTeam = ['Admin', 'Manager', 'SeniorMember'].includes(currentUser.accessLevel);
     const isAdmin = currentUser.accessLevel === 'Admin';
+    // Only Admin can manage teams (add/edit/delete team names)
+    // Manager and SeniorMember can manage members but not teams
 
     const handleInitAdd = () => {
         setFormData({

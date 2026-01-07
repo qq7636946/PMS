@@ -100,6 +100,7 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
             accessLevel: member.accessLevel,
             status: member.status || 'Active',
             team: member.team,
+            teams: member.teams, // Load teams array
             password: ''
         });
     };

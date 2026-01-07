@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>專案系統管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Polyfill process.env
+        window.process = {
+            env: {
+                API_KEY: '' 
+            }
+        };
+
+        // Error Trap
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error('Global Error:', message, error);
+        };
+
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        bg: {
+                            DEFAULT: '#09090b', // Zinc 950
+                            card: '#18181b',    // Zinc 900
+                            input: '#27272a',   // Zinc 800
+                        },
+                        lime: {
+                            400: '#D9F850', // Neon Lime
+                            500: '#BEEO18',
+                            600: '#a3d900',
+                        },
+                        border: {
+                            DEFAULT: '#27272a', // Zinc 800
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Inter"', '"Noto Sans TC"', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'glow': '0 0 20px -5px rgba(217, 248, 80, 0.3)',
+                    },
+                    borderRadius: {
+                        '3xl': '24px',
+                        '4xl': '32px',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+        
+        body { 
+            font-family: 'Inter', 'Noto Sans TC', sans-serif; 
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+        }
+        
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #52525b; }
+
+        /* Input autofill fix for dark mode */
+        .dark input:-webkit-autofill,
+        .dark input:-webkit-autofill:hover, 
+        .dark input:-webkit-autofill:focus, 
+        .dark input:-webkit-autofill:active{
+            -webkit-box-shadow: 0 0 0 30px #27272a inset !important;
+            -webkit-text-fill-color: white !important;
+        }
+
+        .animate-enter { animation: enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes enter { 
+            from { opacity: 0; transform: translateY(15px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react/": "https://esm.sh/react@18.2.0/",
+    "react-dom": "https://esm.sh/react-dom@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "recharts": "https://esm.sh/recharts@2.12.0?external=react,react-dom",
+    "lucide-react": "https://esm.sh/lucide-react@0.344.0?external=react",
+    "@google/genai": "https://esm.sh/@google/genai@0.1.1",
+    "firebase/app": "https://esm.sh/firebase@10.8.1/app",
+    "firebase/auth": "https://esm.sh/firebase@10.8.1/auth",
+    "firebase/analytics": "https://esm.sh/firebase@10.8.1/analytics",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "firebase/": "https://esm.sh/firebase@^12.7.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="flex h-screen w-full bg-slate-50 dark:bg-[#09090b] text-slate-900 dark:text-zinc-100 transition-colors duration-300">
+    <div id="root" class="w-full h-full flex"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

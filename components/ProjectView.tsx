@@ -548,7 +548,29 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, 
                                 className={`text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight bg-transparent border border-transparent rounded-lg px-2 -ml-2 transition-all outline-none flex-1 min-w-0 ${canEditProject ? 'hover:border-slate-200 dark:hover:border-zinc-700 focus:border-lime-400 focus:bg-white dark:focus:bg-zinc-800' : 'cursor-default'}`}
                             />
                             <div className="px-2 -ml-2 text-xs font-bold text-slate-400 dark:text-zinc-500 flex gap-2 items-center flex-wrap">
-                                <span>{project.category || '未分類'}</span>
+                                {canEditProject ? (
+                                    <input
+                                        list="category-options-edit"
+                                        value={project.category || ''}
+                                        onChange={(e) => onUpdateProject({ ...project, category: e.target.value })}
+                                        placeholder="未分類"
+                                        className="bg-transparent border-b border-dotted border-slate-300 dark:border-zinc-600 hover:border-lime-400 dark:hover:border-lime-400 focus:border-lime-400 dark:focus:border-lime-400 outline-none px-1 -mx-1 transition-colors"
+                                    />
+                                ) : (
+                                    <span>{project.category || '未分類'}</span>
+                                )}
+                                <datalist id="category-options-edit">
+                                    <option value="網頁設計" />
+                                    <option value="App 開發" />
+                                    <option value="影片製作" />
+                                    <option value="平面設計" />
+                                    <option value="品牌設計" />
+                                    <option value="UI/UX" />
+                                    <option value="系統系統" />
+                                    <option value="行銷活動" />
+                                    <option value="維護合約" />
+                                    <option value="其他" />
+                                </datalist>
                                 <span>•</span>
                                 <span>{project.clientName}</span>
                                 {(project.team || currentUser.accessLevel === 'Admin') && (

@@ -807,7 +807,7 @@ export const App: React.FC = () => {
                                 {canEdit && (
                                     <button
                                         onClick={(e) => handleDeleteProject(e, p.id)}
-                                        className="absolute top-3 right-3 p-2 text-slate-400 dark:text-zinc-600 hover:text-rose-500 dark:hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-full transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 z-50"
+                                        className="absolute top-3 right-3 p-2.5 text-slate-600 dark:text-zinc-400 hover:text-rose-500 dark:hover:text-rose-500 bg-white/90 dark:bg-zinc-900/90 hover:bg-rose-50 dark:hover:bg-zinc-800 rounded-full transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 z-[60] shadow-lg md:shadow-none backdrop-blur-sm"
                                         title="刪除專案"
                                     >
                                         <Trash2 size={16} />
@@ -821,15 +821,15 @@ export const App: React.FC = () => {
                                                 {p.clientAvatar ? <img src={p.clientAvatar} alt={p.clientName} className="w-full h-full object-cover" /> : <Folder size={24} className="text-slate-400 dark:text-zinc-600" />}
                                             </div>
                                             {canEdit && (
-                                                <div className="absolute inset-0 -m-1 bg-black/80 rounded-2xl flex items-center justify-center gap-1.5 opacity-100 md:opacity-0 md:group-hover/image:opacity-100 transition-opacity z-20 backdrop-blur-[2px]">
-                                                    <label className="w-6 h-6 flex items-center justify-center bg-zinc-700 hover:bg-white text-white hover:text-black rounded-full cursor-pointer transition-all" onClick={(e) => e.stopPropagation()} title="上傳圖片">
+                                                <div className="absolute inset-0 -m-1 bg-black/90 md:bg-black/80 rounded-2xl flex items-center justify-center gap-1.5 opacity-100 md:opacity-0 md:group-hover/image:opacity-100 transition-opacity z-20 backdrop-blur-[2px]">
+                                                    <label className="w-7 h-7 md:w-6 md:h-6 flex items-center justify-center bg-white/20 hover:bg-white text-white hover:text-black rounded-full cursor-pointer transition-all border border-white/30" onClick={(e) => e.stopPropagation()} title="上傳圖片">
                                                         <input type="file" className="hidden" accept="image/*" onChange={(e) => handleProjectImageUpdate(e, p.id)} />
-                                                        <Camera size={12} />
+                                                        <Camera size={14} className="md:w-3 md:h-3" />
                                                     </label>
-                                                    <button onClick={(e) => handleOpenMediaLibrary(e, p.id)} className="w-6 h-6 flex items-center justify-center bg-zinc-700 hover:bg-lime-400 hover:text-black text-white rounded-full cursor-pointer transition-all" title="從媒體庫選擇">
-                                                        <ImageIcon size={12} />
+                                                    <button onClick={(e) => handleOpenMediaLibrary(e, p.id)} className="w-7 h-7 md:w-6 md:h-6 flex items-center justify-center bg-white/20 hover:bg-lime-400 hover:text-black text-white rounded-full cursor-pointer transition-all border border-white/30" title="從媒體庫選擇">
+                                                        <ImageIcon size={14} className="md:w-3 md:h-3" />
                                                     </button>
-                                                    {p.clientAvatar && <button onClick={(e) => handleRemoveProjectImage(e, p.id)} className="w-6 h-6 flex items-center justify-center bg-zinc-700 hover:bg-rose-500 text-white rounded-full cursor-pointer transition-all" title="移除圖片"><Trash2 size={12} /></button>}
+                                                    {p.clientAvatar && <button onClick={(e) => handleRemoveProjectImage(e, p.id)} className="w-7 h-7 md:w-6 md:h-6 flex items-center justify-center bg-white/20 hover:bg-rose-500 text-white rounded-full cursor-pointer transition-all border border-white/30" title="移除圖片"><Trash2 size={14} className="md:w-3 md:h-3" /></button>}
                                                 </div>
                                             )}
                                         </div>

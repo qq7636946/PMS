@@ -333,9 +333,12 @@ export const App: React.FC = () => {
                         hasAccess = isAssigned;
                     }
                 } else {
-                    // If user has no team, only show assigned projects
-                    const members = p.teamMembers || [];
-                    hasAccess = members.includes(currentUser.id);
+                    // If user has no team, they can ONLY see projects that:
+                    // 1. Have NO team assigned AND
+                    // 2. They are assigned to as a team member
+                    const projectTeam = p.team || '';
+                    const isAssigned = (p.teamMembers || []).includes(currentUser.id);
+                    hasAccess = !projectTeam && isAssigned;
                 }
             }
         }

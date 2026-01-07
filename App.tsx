@@ -870,6 +870,7 @@ export const App: React.FC = () => {
                     allMembers={members}
                     onUpdateProject={handleUpdateProject}
                     onBack={() => { setSelectedProjectId(null); setInitialProjectTab(undefined); setActiveView('projects'); }}
+                    teams={teams}
                     initialTab={initialProjectTab}
                 />
             );
@@ -924,21 +925,16 @@ export const App: React.FC = () => {
                     </div>
 
                     {filteredProjects.length === 0 ? (
-                        <div className="w-full py-24 bg-white dark:bg-bg-card rounded-[32px] border border-slate-200 dark:border-border flex flex-col items-center justify-center text-center">
-                            <div className="w-20 h-20 bg-slate-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-6 text-slate-300 dark:text-zinc-600">
-                                <Folder size={32} />
+                        <div className="col-span-full flex flex-col items-center justify-center py-20 px-4">
+                            <div className="w-24 h-24 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center mb-6">
+                                <Folder size={40} className="text-slate-400 dark:text-zinc-500" />
                             </div>
-                            <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+                            <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
                                 {searchQuery ? '找不到相關專案' : '目前沒有專案'}
                             </h3>
-                            <p className="text-slate-400 dark:text-zinc-500 text-sm mt-2 mb-6 max-w-xs mx-auto">
-                                {searchQuery ? '請嘗試其他關鍵字。' : (['Member', 'SeniorMember'].includes(currentUser.accessLevel) ? '您目前沒有被指派任何專案。' : '點擊上方按鈕建立新專案,或重置資料。')}
+                            <p className="text-slate-400 dark:text-zinc-500 text-center max-w-md">
+                                {searchQuery ? '嘗試調整搜尋條件或清除篩選' : '點擊上方按鈕建立新專案，或重置資料。'}
                             </p>
-                            {projects.length === 0 && ['Admin', 'Manager', 'SeniorMember'].includes(currentUser.accessLevel) && (
-                                <button onClick={handleResetData} className="bg-slate-800 dark:bg-white text-white dark:text-black px-6 py-2.5 rounded-xl font-bold hover:bg-slate-700 dark:hover:bg-zinc-200 transition-all text-sm">
-                                    載入預設資料
-                                </button>
-                            )}
                         </div>
                     ) : (
                         <div className="w-full">
@@ -981,36 +977,41 @@ export const App: React.FC = () => {
                             {/* Basic Info */}
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2 pl-1">專案名稱</label>
-                                    <input className="w-full bg-slate-50 dark:bg-bg-input border border-slate-200 dark:border-border rounded-xl px-4 py-3.5 font-bold text-slate-800 dark:text-white outline-none focus:border-lime-500 transition-all" value={newProjectData.name} onChange={e => setNewProjectData({ ...newProjectData, name: e.target.value })} placeholder="例如: 官網改版" />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2 pl-1">客戶名稱</label>
-                                        <input className="w-full bg-slate-50 dark:bg-bg-input border border-slate-200 dark:border-border rounded-xl px-4 py-3.5 font-bold text-slate-800 dark:text-white outline-none focus:border-lime-500 transition-all" value={newProjectData.client} onChange={e => setNewProjectData({ ...newProjectData, client: e.target.value })} placeholder="例如: TechFlow 科技" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2 pl-1">專案分類</label>
-                                        <input
-                                            list="category-options"
-                                            className="w-full bg-slate-50 dark:bg-bg-input border border-slate-200 dark:border-border rounded-xl px-4 py-3.5 font-bold text-slate-800 dark:text-white outline-none focus:border-lime-500 transition-all placeholder:text-slate-400 dark:placeholder:text-zinc-600"
-                                            value={newProjectData.category}
-                                            onChange={e => setNewProjectData({ ...newProjectData, category: e.target.value })}
-                                            placeholder="選擇或輸入分類..."
-                                        />
-                                        <datalist id="category-options">
-                                            {PROJECT_CATEGORIES.map(c => <option key={c} value={c} />)}
-                                        </datalist>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2 pl-1">預算 (TWD)</label>
-                                        <div className="relative">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 font-bold">$</span>
-                                            <input type="number" className="w-full bg-slate-50 dark:bg-bg-input border border-slate-200 dark:border-border rounded-xl pl-6 pr-4 py-3.5 font-bold text-slate-800 dark:text-white outline-none focus:border-lime-500 transition-all" value={newProjectData.budget} onChange={e => setNewProjectData({ ...newProjectData, budget: e.target.value })} placeholder="0" />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2 pl-1">專案名稱</label>
+                                            <input className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl px-5 py-3.5 font-bold text-slate-800 dark:text-white outline-none focus:border-[#EFF0A3] transition-all" value={newProjectData.name} onChange={e => setNewProjectData({ ...newProjectData, name: e.target.value })} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2 pl-1">客戶名稱</label>
+                                            <input className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl px-5 py-3.5 font-bold text-slate-800 dark:text-white outline-none focus:border-[#EFF0A3] transition-all" value={newProjectData.client} onChange={e => setNewProjectData({ ...newProjectData, client: e.target.value })} />
                                         </div>
                                     </div>
+
+                                    {/* Category & Budget */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2 pl-1">專案分類</label>
+                                            <input
+                                                list="category-options"
+                                                className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl px-5 py-3.5 font-bold text-slate-800 dark:text-white outline-none focus:border-[#EFF0A3] transition-all"
+                                                value={newProjectData.category}
+                                                onChange={e => setNewProjectData({ ...newProjectData, category: e.target.value })}
+                                            />
+                                            <datalist id="category-options">
+                                                {PROJECT_CATEGORIES.map(c => <option key={c} value={c} />)}
+                                            </datalist>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2 pl-1">預算 (TWD)</label>
+                                            <div className="relative">
+                                                <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+                                                <input type="number" className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl pl-9 pr-5 py-3.5 font-bold text-slate-800 dark:text-white outline-none focus:border-[#EFF0A3] transition-all" value={newProjectData.budget} onChange={e => setNewProjectData({ ...newProjectData, budget: e.target.value })} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2 pl-1">風險評估</label>
                                         <div className="flex gap-2">
@@ -1109,8 +1110,7 @@ export const App: React.FC = () => {
                                     ))}
                                     <div className="flex items-center gap-2 pt-2">
                                         <input
-                                            className="flex-1 bg-transparent border-b border-slate-200 dark:border-zinc-700 px-2 py-2 text-sm text-slate-800 dark:text-white outline-none focus:border-lime-500 placeholder:text-slate-400 dark:placeholder:text-zinc-600"
-                                            placeholder="新增階段..."
+                                            className="flex-1 bg-transparent border-b border-slate-200 dark:border-zinc-700 px-2 py-2 text-sm text-slate-800 dark:text-white outline-none focus:border-lime-500"
                                             value={newStageInput}
                                             onChange={e => setNewStageInput(e.target.value)}
                                             onKeyDown={e => e.key === 'Enter' && handleAddStageToNewProject()}
@@ -1122,7 +1122,7 @@ export const App: React.FC = () => {
 
                             <div>
                                 <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2 pl-1">專案描述</label>
-                                <textarea className="w-full bg-slate-50 dark:bg-bg-input border border-slate-200 dark:border-border rounded-xl px-4 py-3.5 font-medium text-slate-700 dark:text-zinc-300 outline-none focus:border-lime-500 transition-all min-h-[100px] resize-none" value={newProjectData.description} onChange={e => setNewProjectData({ ...newProjectData, description: e.target.value })} placeholder="輸入專案摘要..." />
+                                <textarea className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl px-5 py-3.5 font-medium text-slate-700 dark:text-zinc-300 outline-none focus:border-[#EFF0A3] transition-all min-h-[100px] resize-none" value={newProjectData.description} onChange={e => setNewProjectData({ ...newProjectData, description: e.target.value })} />
                             </div>
                         </div>
                         <div className="flex justify-end gap-3 mt-8 flex-shrink-0">

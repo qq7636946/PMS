@@ -49,8 +49,18 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
         }
     };
 
+    // Filter members based on team visibility
+    // If not Admin, only show members of the same team
+    const visibleMembers = members.filter(member => {
+        if (currentUser.accessLevel === 'Admin') return true;
+        if (currentUser.team) {
+            return member.team === currentUser.team;
+        }
+        return true; // If user has no team, they can see all (or restrict if needed)
+    });
+
     // Sort members
-    const sortedMembers = [...members].sort((a, b) => {
+    const sortedMembers = [...visibleMembers].sort((a, b) => {
         let aVal = a[sortField] || '';
         let bVal = b[sortField] || '';
 

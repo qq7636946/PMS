@@ -13,11 +13,12 @@ interface ProjectViewProps {
     onUpdateProject: (p: Project) => void;
     onBack: () => void;
     initialTab?: string;
+    teams?: string[];
 }
 
 type TabType = 'content' | 'tasks' | 'schedule' | 'chat' | 'proofing' | 'notes';
 
-export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, allMembers, onUpdateProject, onBack, initialTab }) => {
+export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, allMembers, onUpdateProject, onBack, initialTab, teams = [] }) => {
     const [activeTab, setActiveTab] = useState<TabType>('content');
     const [newTaskTitle, setNewTaskTitle] = useState('');
     const [showNewTaskInput, setShowNewTaskInput] = useState<Status | null>(null);
@@ -541,13 +542,12 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, 
                                             <select
                                                 value={project.team || ''}
                                                 onChange={(e) => onUpdateProject({ ...project, team: e.target.value || undefined })}
-                                                className="bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400 px-2 py-0.5 rounded-md font-bold text-xs cursor-pointer hover:bg-lime-200 dark:hover:bg-lime-900/50 transition-colors border border-lime-300 dark:border-lime-700"
+                                                className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-md font-bold text-xs cursor-pointer hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-colors border border-emerald-300 dark:border-emerald-700"
                                             >
                                                 <option value="">未分配</option>
-                                                <option value="A團隊">A團隊</option>
-                                                <option value="B團隊">B團隊</option>
-                                                <option value="C團隊">C團隊</option>
-                                                <option value="D團隊">D團隊</option>
+                                                {teams.map(team => (
+                                                    <option key={team} value={team}>{team}</option>
+                                                ))}
                                             </select>
                                         ) : (
                                             <span className="bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400 px-2 py-0.5 rounded-md">{project.team}</span>

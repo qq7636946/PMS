@@ -845,6 +845,14 @@ export const App: React.FC = () => {
                                         {canEdit && <Pencil size={12} className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 opacity-0 group-hover/edit:opacity-100 pointer-events-none" />}
                                     </div>
 
+                                    {p.team && (
+                                        <div className="mb-2">
+                                            <span className="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-lime-100 dark:bg-lime-400/10 border border-lime-300 dark:border-lime-400/30 text-lime-700 dark:text-lime-400">
+                                                {p.team}
+                                            </span>
+                                        </div>
+                                    )}
+
                                     <p className="text-xs text-emerald-700 dark:text-emerald-400 font-bold mb-3">{p.stage}</p>
                                     <p className="text-slate-500 dark:text-zinc-500 text-xs mb-6 line-clamp-2 min-h-[2.5em] leading-relaxed">{p.description || '暫無描述...'}</p>
 

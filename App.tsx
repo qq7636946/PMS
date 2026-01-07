@@ -16,7 +16,7 @@ import { Plus, Folder, Camera, Trash2, Pencil, CheckCircle2, Zap, LayoutGrid, Lo
 
 import { auth, db, createSecondaryUser } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { collection, doc, setDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
+import { collection, doc, setDoc, deleteDoc, onSnapshot, getDocs } from 'firebase/firestore';
 
 interface ErrorBoundaryProps {
     children?: ReactNode;
@@ -81,6 +81,7 @@ export const App: React.FC = () => {
     const [projects, setProjects] = useState<Project[]>([]);
     const [members, setMembers] = useState<Member[]>([]);
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+    const [teams, setTeams] = useState<string[]>(['A團隊', 'B團隊', 'C團隊', 'D團隊']); // Custom teams
 
     const [defaultStages, setDefaultStages] = useState<string[]>(DEFAULT_STAGES);
     const [currentUser, setCurrentUser] = useState<Member | null>(null);
@@ -129,10 +130,22 @@ export const App: React.FC = () => {
             setAnnouncements(data);
         });
 
+        // 監聽團隊
+        const unsubTeams = onSnapshot(collection(db, 'teams'), (snapshot) => {
+            if (snapshot.empty) {
+                // 如果沒有團隊資料，使用預設值
+                setTeams(['A團隊', 'B團隊', 'C團隊', 'D團隊']);
+            } else {
+                const data = snapshot.docs.map(doc => doc.data().name as string);
+                setTeams(data.length > 0 ? data : ['A團隊', 'B團隊', 'C團隊', 'D團隊']);
+            }
+        });
+
         return () => {
             unsubProjects();
             unsubMembers();
             unsubAnnouncements();
+            unsubTeams();
         };
     }, []);
 
@@ -161,7 +174,7 @@ export const App: React.FC = () => {
 
         if (auth) {
             try {
-                unsubscribe = onAuthStateChanged(auth, (user) => {
+                unsubscribe = onAuthStateChanged(auth, async (user) => {
                     if (!isMounted) return;
                     clearTimeout(timeoutId);
 
@@ -177,6 +190,15 @@ export const App: React.FC = () => {
                         const foundMember = members.find(m => m.email.toLowerCase() === email);
 
                         if (foundMember) {
+                            // Check if account is suspended
+                            if (foundMember.status === 'Suspended') {
+                                // Sign out suspended users immediately
+                                await signOut(auth);
+                                setCurrentUser(null);
+                                alert('您的帳號已被停用，無法登入系統。請聯繫管理員。');
+                                return;
+                            }
+
                             let updatedUser = foundMember;
                             if (isSuperAdmin && (foundMember.accessLevel !== 'Admin' || foundMember.role !== 'CEO')) {
                                 updatedUser = { ...foundMember, accessLevel: 'Admin', role: 'CEO' };
@@ -238,11 +260,20 @@ export const App: React.FC = () => {
     const [editingCategory, setEditingCategory] = useState<string | null>(null);
     const [editCategoryValue, setEditCategoryValue] = useState('');
 
+    // Project team selection
+    const [newProjectTeam, setNewProjectTeam] = useState<string>('');
+
     useEffect(() => {
         if (showNewProjectModal) {
             setNewProjectStages([...defaultStages]);
             if (currentUser && !newProjectMembers.includes(currentUser.id)) {
                 setNewProjectMembers([currentUser.id]);
+            }
+            // Auto-assign team for non-admin users
+            if (currentUser && currentUser.accessLevel !== 'Admin') {
+                setNewProjectTeam(currentUser.team || '');
+            } else {
+                setNewProjectTeam('');
             }
         }
     }, [showNewProjectModal, defaultStages, currentUser]);
@@ -341,6 +372,104 @@ export const App: React.FC = () => {
             } catch (error) {
                 console.error("刪除失敗", error);
             }
+        }
+    };
+
+    // Team Management Functions (Admin Only)
+    const handleAddTeam = async (teamName: string) => {
+        if (!currentUser || currentUser.accessLevel !== 'Admin') {
+            alert('只有系統管理員可以新增團隊');
+            return;
+        }
+        if (!teamName.trim()) {
+            alert('請輸入團隊名稱');
+            return;
+        }
+        if (teams.includes(teamName.trim())) {
+            alert('此團隊名稱已存在');
+            return;
+        }
+        try {
+            const teamId = Date.now().toString();
+            await setDoc(doc(db, "teams", teamId), { name: teamName.trim() });
+        } catch (error) {
+            console.error("新增團隊失敗", error);
+            alert("新增團隊失敗");
+        }
+    };
+
+    const handleUpdateTeam = async (oldName: string, newName: string) => {
+        if (!currentUser || currentUser.accessLevel !== 'Admin') {
+            alert('只有系統管理員可以編輯團隊');
+            return;
+        }
+        if (!newName.trim() || newName === oldName) return;
+        if (teams.includes(newName.trim()) && newName !== oldName) {
+            alert('此團隊名稱已存在');
+            return;
+        }
+        try {
+            // Find team document by name
+            const teamsSnapshot = await getDocs(collection(db, "teams"));
+            const teamDoc = teamsSnapshot.docs.find(doc => doc.data().name === oldName);
+            if (teamDoc) {
+                await setDoc(doc(db, "teams", teamDoc.id), { name: newName.trim() });
+
+                // Update all members with this team
+                const membersToUpdate = members.filter(m => m.team === oldName);
+                await Promise.all(
+                    membersToUpdate.map(m =>
+                        setDoc(doc(db, "members", m.id), { ...m, team: newName.trim() })
+                    )
+                );
+
+                // Update all projects with this team
+                const projectsToUpdate = projects.filter(p => p.team === oldName);
+                await Promise.all(
+                    projectsToUpdate.map(p =>
+                        setDoc(doc(db, "projects", p.id), { ...p, team: newName.trim() })
+                    )
+                );
+            }
+        } catch (error) {
+            console.error("更新團隊失敗", error);
+            alert("更新團隊失敗");
+        }
+    };
+
+    const handleDeleteTeam = async (teamName: string) => {
+        if (!currentUser || currentUser.accessLevel !== 'Admin') {
+            alert('只有系統管理員可以刪除團隊');
+            return;
+        }
+        if (!window.confirm(`確定要刪除「${teamName}」嗎？此操作無法復原。`)) return;
+
+        try {
+            // Find and delete team document
+            const teamsSnapshot = await getDocs(collection(db, "teams"));
+            const teamDoc = teamsSnapshot.docs.find(doc => doc.data().name === teamName);
+            if (teamDoc) {
+                await deleteDoc(doc(db, "teams", teamDoc.id));
+
+                // Remove team from members
+                const membersToUpdate = members.filter(m => m.team === teamName);
+                await Promise.all(
+                    membersToUpdate.map(m =>
+                        setDoc(doc(db, "members", m.id), { ...m, team: undefined })
+                    )
+                );
+
+                // Remove team from projects
+                const projectsToUpdate = projects.filter(p => p.team === teamName);
+                await Promise.all(
+                    projectsToUpdate.map(p =>
+                        setDoc(doc(db, "projects", p.id), { ...p, team: undefined })
+                    )
+                );
+            }
+        } catch (error) {
+            console.error("刪除團隊失敗", error);
+            alert("刪除團隊失敗");
         }
     };
 
@@ -470,6 +599,7 @@ export const App: React.FC = () => {
             completedStages: [],
             progress: 0,
             riskLevel: newProjectData.risk,
+            team: newProjectTeam || undefined, // Add team assignment
             teamMembers: newProjectMembers,
             startDate: newProjectData.startDate,
             dueDate: newProjectData.dueDate,
@@ -745,7 +875,7 @@ export const App: React.FC = () => {
             );
         }
 
-        if (activeView === 'team') return <TeamView members={members} onAddMember={handleAddMember} onUpdateMember={handleUpdateMember} onRemoveMember={handleRemoveMember} currentUser={currentUser} />;
+        if (activeView === 'team') return <TeamView members={members} onAddMember={handleAddMember} onUpdateMember={handleUpdateMember} onRemoveMember={handleRemoveMember} currentUser={currentUser} teams={teams} onAddTeam={handleAddTeam} onUpdateTeam={handleUpdateTeam} onDeleteTeam={handleDeleteTeam} />;
         if (activeView === 'budget') return <BudgetView projects={projects} onUpdateProject={handleUpdateProject} currentUser={currentUser} />;
         if (activeView === 'gallery') return <GalleryView projects={projects} />;
         if (activeView === 'calendar') return <CalendarView projects={projects} members={members} currentUser={currentUser} onUpdateProject={handleUpdateProject} />;
@@ -779,7 +909,7 @@ export const App: React.FC = () => {
                             )}
 
                             {['Admin', 'Manager', 'SeniorMember'].includes(currentUser.accessLevel) && (
-                                <button onClick={() => setShowNewProjectModal(true)} className="bg-lime-400 text-black px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-lime-400/20 hover:bg-lime-300 transition-all flex items-center gap-2 text-sm">
+                                <button onClick={() => setShowNewProjectModal(true)} className="bg-[#EFF0A3] text-black px-5 py-2.5 rounded-xl font-bold shadow-lg hover:bg-[#e5e699] transition-all flex items-center gap-2 text-sm">
                                     <Plus size={18} /> <span className="hidden md:inline">新增專案</span>
                                 </button>
                             )}
@@ -882,6 +1012,26 @@ export const App: React.FC = () => {
                                             ))}
                                         </div>
                                     </div>
+                                </div>
+
+                                {/* Team Selection */}
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2 pl-1">專案團隊</label>
+                                    <select
+                                        className="w-full bg-slate-50 dark:bg-bg-input border border-slate-200 dark:border-border rounded-xl px-4 py-3.5 font-bold text-slate-800 dark:text-white outline-none focus:border-lime-500 transition-all"
+                                        value={newProjectTeam}
+                                        onChange={(e) => setNewProjectTeam(e.target.value)}
+                                        disabled={currentUser?.accessLevel !== 'Admin'}
+                                    >
+                                        <option value="">未分配</option>
+                                        <option value="A團隊">A團隊</option>
+                                        <option value="B團隊">B團隊</option>
+                                        <option value="C團隊">C團隊</option>
+                                        <option value="D團隊">D團隊</option>
+                                    </select>
+                                    {currentUser?.accessLevel !== 'Admin' && currentUser?.team && (
+                                        <p className="text-[10px] text-slate-400 dark:text-zinc-500 mt-1 ml-1">* 自動分配至您的團隊: {currentUser.team}</p>
+                                    )}
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">

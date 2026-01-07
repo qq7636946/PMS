@@ -10,12 +10,13 @@ interface TeamViewProps {
     onUpdateMember: (member: Member) => void;
     onRemoveMember: (id: string) => void;
     currentUser: Member;
+    teams: string[]; // Dynamic teams from Firebase
+    onAddTeam: (teamName: string) => Promise<void>;
+    onUpdateTeam: (oldName: string, newName: string) => Promise<void>;
+    onDeleteTeam: (teamName: string) => Promise<void>;
 }
 
-// Predefined teams list
-const TEAMS = ['A團隊', 'B團隊', 'C團隊', 'D團隊', '未分配'];
-
-export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpdateMember, onRemoveMember, currentUser }) => {
+export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpdateMember, onRemoveMember, currentUser, teams, onAddTeam, onUpdateTeam, onDeleteTeam }) => {
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingMember, setEditingMember] = useState<Member | null>(null);
     const [formData, setFormData] = useState<Partial<Member>>({});
@@ -293,7 +294,7 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
                                     disabled={isProcessing || (currentUser.accessLevel !== 'Admin' && !editingMember)}
                                 >
                                     <option value="">未分配</option>
-                                    {TEAMS.filter(t => t !== '未分配').map(team => (
+                                    {teams.map(team => (
                                         <option key={team} value={team}>{team}</option>
                                     ))}
                                 </select>

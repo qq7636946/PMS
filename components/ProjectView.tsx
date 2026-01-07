@@ -529,10 +529,30 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, 
                                 onChange={(e) => canEditProject && onUpdateProject({ ...project, name: e.target.value })}
                                 className={`text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight bg-transparent border border-transparent rounded-lg px-2 -ml-2 transition-all outline-none flex-1 min-w-0 ${canEditProject ? 'hover:border-slate-200 dark:hover:border-zinc-700 focus:border-lime-400 focus:bg-white dark:focus:bg-zinc-800' : 'cursor-default'}`}
                             />
-                            <div className="px-2 -ml-2 text-xs font-bold text-slate-400 dark:text-zinc-500 flex gap-2">
+                            <div className="px-2 -ml-2 text-xs font-bold text-slate-400 dark:text-zinc-500 flex gap-2 items-center flex-wrap">
                                 <span>{project.category || '未分類'}</span>
                                 <span>•</span>
                                 <span>{project.clientName}</span>
+                                {project.team && (
+                                    <>
+                                        <span>•</span>
+                                        {currentUser.accessLevel === 'Admin' ? (
+                                            <select
+                                                value={project.team || ''}
+                                                onChange={(e) => onUpdateProject({ ...project, team: e.target.value || undefined })}
+                                                className="bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400 px-2 py-0.5 rounded-md font-bold text-xs cursor-pointer hover:bg-lime-200 dark:hover:bg-lime-900/50 transition-colors border border-lime-300 dark:border-lime-700"
+                                            >
+                                                <option value="">未分配</option>
+                                                <option value="A團隊">A團隊</option>
+                                                <option value="B團隊">B團隊</option>
+                                                <option value="C團隊">C團隊</option>
+                                                <option value="D團隊">D團隊</option>
+                                            </select>
+                                        ) : (
+                                            <span className="bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400 px-2 py-0.5 rounded-md">{project.team}</span>
+                                        )}
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>

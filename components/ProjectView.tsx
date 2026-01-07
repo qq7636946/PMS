@@ -540,15 +540,8 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, 
                             <input
                                 value={project.name}
                                 readOnly={!canEditProject}
-                                onCompositionStart={() => setIsComposing(true)}
-                                onCompositionEnd={(e) => {
-                                    setIsComposing(false);
-                                    if (canEditProject) {
-                                        onUpdateProject({ ...project, name: (e.target as HTMLInputElement).value });
-                                    }
-                                }}
                                 onChange={(e) => {
-                                    if (canEditProject && !isComposing) {
+                                    if (canEditProject) {
                                         onUpdateProject({ ...project, name: e.target.value });
                                     }
                                 }}

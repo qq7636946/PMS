@@ -541,8 +541,17 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, 
                                 value={project.name}
                                 readOnly={!canEditProject}
                                 onCompositionStart={() => setIsComposing(true)}
-                                onCompositionEnd={() => setIsComposing(false)}
-                                onChange={(e) => canEditProject && !isComposing && onUpdateProject({ ...project, name: e.target.value })}
+                                onCompositionEnd={(e) => {
+                                    setIsComposing(false);
+                                    if (canEditProject) {
+                                        onUpdateProject({ ...project, name: (e.target as HTMLInputElement).value });
+                                    }
+                                }}
+                                onChange={(e) => {
+                                    if (canEditProject && !isComposing) {
+                                        onUpdateProject({ ...project, name: e.target.value });
+                                    }
+                                }}
                                 className={`text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight bg-transparent border border-transparent rounded-lg px-2 -ml-2 transition-all outline-none flex-1 min-w-0 ${canEditProject ? 'hover:border-slate-200 dark:hover:border-zinc-700 focus:border-lime-400 focus:bg-white dark:focus:bg-zinc-800' : 'cursor-default'}`}
                             />
                             <div className="px-2 -ml-2 text-xs font-bold text-slate-400 dark:text-zinc-500 flex gap-2 items-center flex-wrap">

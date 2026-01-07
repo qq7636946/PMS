@@ -868,7 +868,7 @@ export const App: React.FC = () => {
                                         <p className="text-xs text-emerald-700 dark:text-emerald-400 font-bold mb-2 md:mb-3">{p.stage}</p>
                                         <p className="hidden md:block text-slate-500 dark:text-zinc-500 text-xs mb-6 line-clamp-2 min-h-[2.5em] leading-relaxed">{p.description || '暫無描述...'}</p>
 
-                                        {p.budget && (
+                                        {p.budget && canEdit && (
                                             <div className="hidden md:block mb-4 p-3 bg-slate-50 dark:bg-zinc-900/50 rounded-xl border border-slate-200 dark:border-zinc-800">
                                                 <div className="flex items-center justify-between">
                                                     <span className="text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wide">專案預算</span>

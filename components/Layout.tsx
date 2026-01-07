@@ -23,7 +23,7 @@ const SidebarContent: React.FC<SidebarProps> = ({ activeView, setActiveView, onN
         // Budget only for Admin
         ...(currentUser?.accessLevel === 'Admin' ? [{ id: 'budget', label: '財務預算', icon: DollarSign, roles: ['Admin'] }] : []),
         { id: 'gallery', label: '設計藝廊', icon: ImageIcon, roles: ['Admin', 'Manager', 'Member'] },
-        { id: 'media', label: '媒體庫', icon: Folder, roles: ['Admin', 'Manager', 'Member'] },
+        { id: 'media', label: '媒體庫', icon: Folder, roles: ['Admin', 'Manager', 'SeniorMember'] },
         { id: 'announcements', label: '系統公告', icon: Megaphone, roles: ['Admin', 'Manager', 'Member'] },
         ...(currentUser?.accessLevel === 'Admin' ? [{ id: 'team', label: '團隊管理', icon: Users, roles: ['Admin'] }] : []),
         { id: 'settings', label: '系統設定', icon: Settings, roles: ['Admin', 'Manager', 'Member'] },
@@ -202,8 +202,26 @@ export const Layout: React.FC<{
         });
 
         projects.forEach(p => {
-            const isMember = p.teamMembers.includes(currentUser.id) || ['Admin', 'Manager', 'SeniorMember'].includes(currentUser.accessLevel);
-            if (!isMember) return;
+            // Team-based filtering for project notifications
+            let hasAccess = false;
+            if (currentUser.accessLevel === 'Admin') {
+                hasAccess = true;
+            } else {
+                const userTeams = currentUser.teams || (currentUser.team ? [currentUser.team] : []);
+                const projectTeam = p.team || '';
+                if (userTeams.length > 0) {
+                    if (projectTeam) {
+                        hasAccess = userTeams.includes(projectTeam);
+                    } else {
+                        const isAssigned = (p.teamMembers || []).includes(currentUser.id);
+                        hasAccess = isAssigned;
+                    }
+                } else {
+                    const isAssigned = (p.teamMembers || []).includes(currentUser.id);
+                    hasAccess = !projectTeam && isAssigned;
+                }
+            }
+            if (!hasAccess) return;
 
             // High Risk Project Alert
             if (p.riskLevel === 'High') {

@@ -893,7 +893,7 @@ export const App: React.FC = () => {
             }
             return <BudgetView projects={projects} onUpdateProject={handleUpdateProject} currentUser={currentUser} />;
         }
-        if (activeView === 'gallery') return <GalleryView projects={projects} />;
+        if (activeView === 'gallery') return <GalleryView projects={projects} currentUser={currentUser} onProjectUpdate={() => setProjects([...projects])} />;
         if (activeView === 'calendar') return <CalendarView projects={projects} members={members} currentUser={currentUser} onUpdateProject={handleUpdateProject} />;
         if (activeView === 'announcements') return <AnnouncementView announcements={announcements} members={members} currentUser={currentUser} onCreateAnnouncement={handleCreateAnnouncement} onUpdateAnnouncement={handleUpdateAnnouncement} onDeleteAnnouncement={handleDeleteAnnouncement} onMarkAsRead={handleMarkAnnouncementRead} />;
         if (activeView === 'settings') return <SettingsView currentUser={currentUser} onUpdateProfile={handleUpdateMember} onResetData={handleResetData} defaultStages={defaultStages} onUpdateDefaultStages={setDefaultStages} />;

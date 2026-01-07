@@ -535,7 +535,7 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, 
                                 <span>{project.category || '未分類'}</span>
                                 <span>•</span>
                                 <span>{project.clientName}</span>
-                                {project.team && (
+                                {(project.team || currentUser.accessLevel === 'Admin') && (
                                     <>
                                         <span>•</span>
                                         {currentUser.accessLevel === 'Admin' ? (
@@ -582,7 +582,7 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, 
                     {visibleTabs.map((tab) => {
                         const isActive = activeTab === tab.id;
                         return (
-                            <button key={tab.id} onClick={() => setActiveTab(tab.id as TabType)} className={`flex items-center gap-2 px-4 md:px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex-shrink-0 ${isActive ? 'bg-lime-400 text-black shadow-lg shadow-lime-400/20' : 'text-slate-500 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-800 dark:hover:text-white'}`}>
+                            <button key={tab.id} onClick={() => setActiveTab(tab.id as TabType)} className={`flex items-center gap-2 px-4 md:px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex-shrink-0 ${isActive ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-slate-500 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-800 dark:hover:text-white'}`}>
                                 <tab.icon size={16} /> {tab.label}
                             </button>
                         )

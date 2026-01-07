@@ -570,7 +570,7 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, 
                         ) : (
                             <button
                                 onClick={() => canEditProject && setIsEditingRisk(true)}
-                                className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all border ${project.riskLevel === 'High' ? 'bg-rose-500/10 text-rose-500 border-rose-500/30' : project.riskLevel === 'Medium' ? 'bg-orange-500/10 text-orange-500 border-orange-500/30' : 'bg-lime-400/10 text-lime-400 border-lime-400/30'} ${canEditProject ? 'cursor-pointer' : 'cursor-default'}`}
+                                className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all border ${project.riskLevel === 'High' ? 'bg-rose-500/10 text-rose-500 border-rose-500/30' : project.riskLevel === 'Medium' ? 'bg-orange-500/10 text-orange-500 border-orange-500/30' : 'bg-lime-100 text-lime-600 border-lime-200 dark:bg-lime-900/40 dark:text-lime-400 dark:border-lime-800'} ${canEditProject ? 'cursor-pointer' : 'cursor-default'}`}
                             >
                                 <Zap size={14} fill="currentColor" /> {project.riskLevel === 'High' ? '高風險' : project.riskLevel === 'Medium' ? '中風險' : '低風險'}
                             </button>
@@ -582,7 +582,8 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, 
                     {visibleTabs.map((tab) => {
                         const isActive = activeTab === tab.id;
                         return (
-                            <button key={tab.id} onClick={() => setActiveTab(tab.id as TabType)} className={`flex items-center gap-2 px-4 md:px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex-shrink-0 ${isActive ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-slate-500 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-800 dark:hover:text-white'}`}>
+                        return (
+                            <button key={tab.id} onClick={() => setActiveTab(tab.id as TabType)} className={`flex items-center gap-2 px-4 md:px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex-shrink-0 ${isActive ? 'bg-[#D4D655] text-slate-900 shadow-lg shadow-lime-400/20' : 'text-slate-500 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-800 dark:hover:text-white'}`}>
                                 <tab.icon size={16} /> {tab.label}
                             </button>
                         )

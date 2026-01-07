@@ -406,10 +406,16 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
                             </div>
 
                             {/* Team */}
-                            <div className="col-span-2 flex items-center">
-                                {member.team ? (
-                                    <span className="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
-                                        <Users size={12} /> {member.team}
+                            <div className="col-span-2 flex flex-wrap gap-1 items-center">
+                                {(member.teams && member.teams.length > 0) ? (
+                                    member.teams.map(t => (
+                                        <span key={t} className="px-2 py-1 rounded-lg text-[10px] font-bold bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 flex items-center gap-1 border border-emerald-100 dark:border-emerald-500/30">
+                                            <Users size={10} /> {t}
+                                        </span>
+                                    ))
+                                ) : member.team ? (
+                                    <span className="px-2 py-1 rounded-lg text-[10px] font-bold bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 flex items-center gap-1 border border-emerald-100 dark:border-emerald-500/30">
+                                        <Users size={10} /> {member.team}
                                     </span>
                                 ) : (
                                     <span className="text-xs text-slate-400 dark:text-zinc-600 italic">未分配</span>
@@ -498,20 +504,40 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2 pl-1">團隊</label>
-                                <select
-                                    className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl px-5 py-3 text-sm font-bold text-slate-700 dark:text-white focus:bg-white dark:focus:bg-black transition-all outline-none focus:border-lime-500"
-                                    value={formData.team || ''}
-                                    onChange={e => setFormData({ ...formData, team: e.target.value || undefined })}
-                                    disabled={isProcessing || (currentUser.accessLevel !== 'Admin' && !editingMember)}
-                                >
-                                    <option value="">未分配</option>
-                                    {teams.map(team => (
-                                        <option key={team} value={team}>{team}</option>
-                                    ))}
-                                </select>
+                                <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2 pl-1">團隊 (可多選)</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {teams.map(team => {
+                                        const currentTeams = formData.teams || (formData.team ? [formData.team] : []);
+                                        const isSelected = currentTeams.includes(team);
+                                        return (
+                                            <button
+                                                key={team}
+                                                type="button"
+                                                disabled={isProcessing || (currentUser.accessLevel !== 'Admin' && !editingMember)}
+                                                onClick={() => {
+                                                    const newTeams = isSelected
+                                                        ? currentTeams.filter(t => t !== team)
+                                                        : [...currentTeams, team];
+                                                    setFormData({
+                                                        ...formData,
+                                                        teams: newTeams,
+                                                        team: newTeams[0] || '' // Keep legacy field sync for safety
+                                                    });
+                                                }}
+                                                className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all flex items-center gap-1.5 ${isSelected
+                                                        ? 'bg-emerald-500 text-white border-emerald-500'
+                                                        : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-700 text-slate-500 dark:text-zinc-400 hover:border-emerald-400'
+                                                    }`}
+                                            >
+                                                {isSelected && <CheckCircle2 size={12} />}
+                                                {team}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                {teams.length === 0 && <p className="text-xs text-slate-400 italic">目前沒有群組可選，請先建立群組。</p>}
                                 {currentUser.accessLevel !== 'Admin' && !editingMember && (
-                                    <p className="text-[10px] text-slate-400 dark:text-zinc-500 mt-1 ml-1">* 自動分配至您的團隊: {currentUser.team || '未分配'}</p>
+                                    <p className="text-[10px] text-slate-400 dark:text-zinc-500 mt-2 ml-1">* 自動分配至您的團隊</p>
                                 )}
                             </div>
 

@@ -20,10 +20,11 @@ const SidebarContent: React.FC<SidebarProps> = ({ activeView, setActiveView, onN
         { id: 'dashboard', label: '總覽儀表板', icon: LayoutDashboard, roles: ['Admin', 'Manager', 'Member'] },
         { id: 'projects', label: '專案列表', icon: FolderKanban, roles: ['Admin', 'Manager', 'Member'] },
         { id: 'calendar', label: '行事曆', icon: Calendar, roles: ['Admin', 'Manager', 'Member'] },
-        { id: 'budget', label: '財務預算', icon: DollarSign, roles: ['Admin', 'Manager', 'SeniorMember'] },
+        // Budget only for Admin
+        ...(currentUser?.accessLevel === 'Admin' ? [{ id: 'budget', label: '財務預算', icon: DollarSign, roles: ['Admin'] }] : []),
         { id: 'gallery', label: '設計藝廊', icon: ImageIcon, roles: ['Admin', 'Manager', 'Member'] },
         { id: 'announcements', label: '系統公告', icon: Megaphone, roles: ['Admin', 'Manager', 'Member'] },
-        { id: 'team', label: '團隊管理', icon: Users, roles: ['Admin'] },
+        ...(currentUser?.accessLevel === 'Admin' ? [{ id: 'team', label: '團隊管理', icon: Users, roles: ['Admin'] }] : []),
         { id: 'settings', label: '系統設定', icon: Settings, roles: ['Admin', 'Manager', 'Member'] },
     ];
 
@@ -493,6 +494,19 @@ export const Layout: React.FC<{
                                     <div className="p-5 border-b border-slate-100 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-900/50">
                                         <p className="font-bold text-slate-800 dark:text-white truncate text-lg">{currentUser?.name}</p>
                                         <p className="text-xs text-slate-500 dark:text-zinc-500 font-medium mt-0.5">{currentUser?.role}</p>
+                                        <div className="flex flex-wrap gap-1 mt-2">
+                                            {(currentUser?.teams && currentUser.teams.length > 0) ? (
+                                                currentUser.teams.map(t => (
+                                                    <span key={t} className="text-[10px] bg-white dark:bg-zinc-800 px-1.5 py-0.5 rounded text-slate-600 dark:text-zinc-400 font-medium border border-slate-200 dark:border-zinc-700">
+                                                        {t}
+                                                    </span>
+                                                ))
+                                            ) : currentUser?.team && (
+                                                <span className="text-[10px] bg-white dark:bg-zinc-800 px-1.5 py-0.5 rounded text-slate-600 dark:text-zinc-400 font-medium border border-slate-200 dark:border-zinc-700">
+                                                    {currentUser.team}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                     <button onClick={() => setActiveView('settings')} className="w-full text-left px-5 py-3.5 text-sm font-bold text-slate-600 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white flex items-center gap-3 transition-colors">
                                         <Settings size={18} /> 帳號設定

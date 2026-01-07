@@ -50,7 +50,8 @@ export interface Member {
   password?: string; // Optional for mock data, required for creation
   role: string; // Job Title e.g., 'Frontend Dev'
   accessLevel: AccessLevel; // System Permission e.g., 'Admin'
-  team?: string; // Team assignment (e.g., "A團隊", "B團隊")
+  team?: string; // Legacy: Single team
+  teams?: string[]; // New: Multiple teams assignment
   avatar?: string;
   status?: 'Active' | 'Suspended'; // Account Status
 }

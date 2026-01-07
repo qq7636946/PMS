@@ -296,16 +296,16 @@ export const App: React.FC = () => {
             }
             // Team-based filtering for all other users (Manager, SeniorMember, Member)
             else {
-                // Check if user's team matches project's team
-                const userTeam = currentUser.team || '';
+                // Check if user's teams include project's team
+                const userTeams = currentUser.teams || (currentUser.team ? [currentUser.team] : []);
                 const projectTeam = p.team || '';
 
-                // If user has a team, only show projects from their team OR projects they're assigned to
-                if (userTeam) {
-                    // STRICT MODE: If project has a team, it MUST match the user's team
+                // If user has teams, only show projects from their teams OR projects they're assigned to
+                if (userTeams.length > 0) {
+                    // STRICT MODE: If project has a team, it MUST be one of the user's teams
                     // This overrides assignment - you cannot see cross-team projects even if assigned
                     if (projectTeam) {
-                        hasAccess = projectTeam === userTeam;
+                        hasAccess = userTeams.includes(projectTeam);
                     } else {
                         // If project has no team, fallback to assignment check
                         const isAssigned = (p.teamMembers || []).includes(currentUser.id);

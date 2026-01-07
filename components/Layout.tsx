@@ -139,12 +139,12 @@ export const Layout: React.FC<{
     const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
     const [avatarError, setAvatarError] = useState(false);
 
-    // Theme State
+    // Theme State - Default to Light Mode
     const [isDark, setIsDark] = useState(() => {
         if (typeof window !== 'undefined') {
             return document.documentElement.classList.contains('dark');
         }
-        return true;
+        return false; // Default to light mode
     });
 
     const toggleTheme = () => {
@@ -371,7 +371,7 @@ export const Layout: React.FC<{
     };
 
     return (
-        <div className="flex w-full h-full bg-slate-50 dark:bg-[#09090b] overflow-hidden text-slate-900 dark:text-zinc-100 transition-colors duration-300" onClick={() => { setShowNotifications(false); setShowUserMenu(false); }}>
+        <div className="flex w-full h-full bg-[#F5F5F7] dark:bg-[#09090b] overflow-hidden text-slate-900 dark:text-zinc-100 transition-colors duration-300" onClick={() => { setShowNotifications(false); setShowUserMenu(false); }}>
 
             {/* Desktop Sidebar */}
             <div className="hidden md:block w-[280px] h-full z-30 flex-shrink-0 shadow-xl">
@@ -389,9 +389,9 @@ export const Layout: React.FC<{
             )}
 
             {/* Main Content */}
-            <main className="flex-1 flex flex-col h-full min-w-0 overflow-hidden relative bg-slate-50 dark:bg-[#09090b]">
+            <main className="flex-1 flex flex-col h-full min-w-0 overflow-hidden relative bg-[#F5F5F7] dark:bg-[#09090b]">
                 {/* Header */}
-                <header className="h-20 flex items-center justify-between px-6 flex-shrink-0 z-20 bg-slate-50/80 dark:bg-[#09090b]/80 backdrop-blur-md border-b border-slate-200/50 dark:border-zinc-800/30">
+                <header className="h-20 flex items-center justify-between px-6 flex-shrink-0 z-20 bg-[#F5F5F7]/80 dark:bg-[#09090b]/80 backdrop-blur-md border-b border-slate-200/50 dark:border-zinc-800/30">
                     <div className="flex items-center gap-4">
                         <button onClick={(e) => { e.stopPropagation(); setMobileMenuOpen(true); }} className="md:hidden p-2 -ml-2 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-zinc-800 rounded-xl transition-colors">
                             <Menu size={24} />

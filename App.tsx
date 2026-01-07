@@ -541,7 +541,7 @@ export const App: React.FC = () => {
                         const isMissingInfo = !p.dueDate || !p.startDate || tasks.length === 0 || hasStageGap;
 
                         return (
-                            <div key={p.id} onClick={() => { setSelectedProjectId(p.id); setActiveView('projects'); }} className="bg-white dark:bg-[#18181b] rounded-[28px] p-6 border border-slate-200 dark:border-zinc-800 transition-all cursor-pointer group relative overflow-hidden shadow-lg shadow-slate-200/50 dark:shadow-none hover:shadow-xl dark:hover:shadow-lime-400/20 hover:border-lime-400/30 hover:-translate-y-1">
+                            <div key={p.id} onClick={() => { setSelectedProjectId(p.id); setActiveView('projects'); }} className="bg-white dark:bg-[#18181b] rounded-[28px] p-6 border border-slate-100 dark:border-zinc-800 transition-all cursor-pointer group relative overflow-hidden shadow-card hover:shadow-card-hover dark:shadow-none dark:hover:shadow-lime-400/20 hover:border-lime-400/30 hover:-translate-y-1">
 
                                 {canEdit && (
                                     <button

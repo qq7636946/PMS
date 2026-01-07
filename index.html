@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html lang="zh-TW" class="dark">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,6 +29,12 @@
                             card: '#18181b',    // Zinc 900
                             input: '#27272a',   // Zinc 800
                         },
+                        light: {
+                            bg: '#F5F5F7',      // Soft gray background
+                            card: '#FFFFFF',    // Pure white cards
+                            border: '#E5E5E7',  // Subtle borders
+                            muted: '#F9FAFB',   // Muted backgrounds
+                        },
                         lime: {
                             400: '#D9F850', // Neon Lime
                             500: '#BEEO18',
@@ -43,6 +49,9 @@
                     },
                     boxShadow: {
                         'glow': '0 0 20px -5px rgba(217, 248, 80, 0.3)',
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08)',
+                        'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08)',
+                        'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
                     },
                     borderRadius: {
                         '3xl': '24px',
@@ -104,7 +113,7 @@
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-<body class="flex h-screen w-full bg-slate-50 dark:bg-[#09090b] text-slate-900 dark:text-zinc-100 transition-colors duration-300">
+<body class="flex h-screen w-full bg-[#F5F5F7] dark:bg-[#09090b] text-slate-900 dark:text-zinc-100 transition-colors duration-300">
     <div id="root" class="w-full h-full flex"></div>
 <script type="module" src="/index.tsx"></script>
 </body>

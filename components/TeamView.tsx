@@ -505,37 +505,116 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
 
                             <div>
                                 <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2 pl-1">團隊 (可多選)</label>
-                                <div className="flex flex-wrap gap-2">
-                                    {teams.map(team => {
+
+                                {/* Display selected teams as tags */}
+                                <div className="flex flex-wrap gap-2 mb-3">
+                                    {(() => {
                                         const currentTeams = formData.teams || (formData.team ? [formData.team] : []);
-                                        const isSelected = currentTeams.includes(team);
-                                        return (
-                                            <button
-                                                key={team}
-                                                type="button"
-                                                disabled={isProcessing || (currentUser.accessLevel !== 'Admin' && !editingMember)}
-                                                onClick={() => {
-                                                    const newTeams = isSelected
-                                                        ? currentTeams.filter(t => t !== team)
-                                                        : [...currentTeams, team];
+                                        return currentTeams.map(team => (
+                                            <span key={team} className="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white border border-emerald-500 flex items-center gap-1.5">
+                                                <CheckCircle2 size={12} />
+                                                {team}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const newTeams = currentTeams.filter(t => t !== team);
+                                                        setFormData({
+                                                            ...formData,
+                                                            teams: newTeams,
+                                                            team: newTeams[0] || ''
+                                                        });
+                                                    }}
+                                                    className="ml-1 hover:bg-emerald-600 rounded-full p-0.5"
+                                                >
+                                                    <X size={10} />
+                                                </button>
+                                            </span>
+                                        ));
+                                    })()}
+                                </div>
+
+                                {/* Available teams to select */}
+                                <div className="mb-3">
+                                    <p className="text-[10px] text-slate-400 dark:text-zinc-500 mb-2">可選擇的團隊：</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {teams.map(team => {
+                                            const currentTeams = formData.teams || (formData.team ? [formData.team] : []);
+                                            const isSelected = currentTeams.includes(team);
+                                            if (isSelected) return null; // Don't show already selected teams
+                                            return (
+                                                <button
+                                                    key={team}
+                                                    type="button"
+                                                    disabled={isProcessing || (currentUser.accessLevel !== 'Admin' && !editingMember)}
+                                                    onClick={() => {
+                                                        const newTeams = [...currentTeams, team];
+                                                        setFormData({
+                                                            ...formData,
+                                                            teams: newTeams,
+                                                            team: newTeams[0] || ''
+                                                        });
+                                                    }}
+                                                    className="px-3 py-1.5 rounded-lg text-xs font-bold border transition-all bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-700 text-slate-500 dark:text-zinc-400 hover:border-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                                                >
+                                                    + {team}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Input for new custom team */}
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="輸入新團隊名稱..."
+                                        className="flex-1 px-3 py-2 rounded-lg border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-slate-700 dark:text-white text-xs font-bold focus:outline-none focus:ring-2 ring-emerald-400"
+                                        onKeyPress={(e) => {
+                                            if (e.key === 'Enter') {
+                                                const input = e.currentTarget;
+                                                const newTeamName = input.value.trim();
+                                                if (newTeamName) {
+                                                    const currentTeams = formData.teams || (formData.team ? [formData.team] : []);
+                                                    if (!currentTeams.includes(newTeamName)) {
+                                                        const newTeams = [...currentTeams, newTeamName];
+                                                        setFormData({
+                                                            ...formData,
+                                                            teams: newTeams,
+                                                            team: newTeams[0] || ''
+                                                        });
+                                                        input.value = '';
+                                                    }
+                                                }
+                                            }
+                                        }}
+                                        disabled={isProcessing || (currentUser.accessLevel !== 'Admin' && !editingMember)}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                                            const newTeamName = input.value.trim();
+                                            if (newTeamName) {
+                                                const currentTeams = formData.teams || (formData.team ? [formData.team] : []);
+                                                if (!currentTeams.includes(newTeamName)) {
+                                                    const newTeams = [...currentTeams, newTeamName];
                                                     setFormData({
                                                         ...formData,
                                                         teams: newTeams,
-                                                        team: newTeams[0] || '' // Keep legacy field sync for safety
+                                                        team: newTeams[0] || ''
                                                     });
-                                                }}
-                                                className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all flex items-center gap-1.5 ${isSelected
-                                                    ? 'bg-emerald-500 text-white border-emerald-500'
-                                                    : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-700 text-slate-500 dark:text-zinc-400 hover:border-emerald-400'
-                                                    }`}
-                                            >
-                                                {isSelected && <CheckCircle2 size={12} />}
-                                                {team}
-                                            </button>
-                                        );
-                                    })}
+                                                    input.value = '';
+                                                }
+                                            }
+                                        }}
+                                        className="px-4 py-2 bg-lime-400 text-black rounded-lg text-xs font-bold hover:bg-lime-500 transition-all flex items-center gap-1"
+                                        disabled={isProcessing || (currentUser.accessLevel !== 'Admin' && !editingMember)}
+                                    >
+                                        <Plus size={14} /> 新增
+                                    </button>
                                 </div>
-                                {teams.length === 0 && <p className="text-xs text-slate-400 italic">目前沒有群組可選，請先建立群組。</p>}
+
+                                {teams.length === 0 && <p className="text-xs text-slate-400 italic mt-2">目前沒有群組可選，請先建立群組。</p>}
                                 {currentUser.accessLevel !== 'Admin' && !editingMember && (
                                     <p className="text-[10px] text-slate-400 dark:text-zinc-500 mt-2 ml-1">* 自動分配至您的團隊</p>
                                 )}

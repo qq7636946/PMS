@@ -24,6 +24,8 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, 
     const [showNewTaskInput, setShowNewTaskInput] = useState<Status | null>(null);
     const [isEditingNotes, setIsEditingNotes] = useState(false);
     const [tempNotes, setTempNotes] = useState(project.notes);
+    const [isEditingDescription, setIsEditingDescription] = useState(false);
+    const [tempDescription, setTempDescription] = useState(project.description || '');
     const [showMemberSelect, setShowMemberSelect] = useState(false);
     const [selectedTask, setSelectedTask] = useState<Task | null>(null);
     const [isEditingRisk, setIsEditingRisk] = useState(false);
@@ -73,7 +75,8 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, 
     // FIXED: Sync local state when props change (other user updates)
     useEffect(() => {
         setTempNotes(project.notes);
-    }, [project.notes]);
+        setTempDescription(project.description || '');
+    }, [project.notes, project.description]);
 
     useEffect(() => {
         if (initialTab && ['content', 'tasks', 'schedule', 'chat', 'proofing', 'notes'].includes(initialTab)) {
@@ -147,6 +150,14 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, 
             notesLastModifiedBy: currentUser.id
         });
         setIsEditingNotes(false);
+    };
+
+    const handleSaveDescription = () => {
+        onUpdateProject({
+            ...project,
+            description: tempDescription
+        });
+        setIsEditingDescription(false);
     };
     const toggleMember = (id: string) => { onUpdateProject({ ...project, teamMembers: teamMembers.includes(id) ? teamMembers.filter(m => m !== id) : [...teamMembers, id] }); };
     const handleAddTask = (status: Status) => { if (newTaskTitle.trim()) { onUpdateProject({ ...project, tasks: [...tasks, { id: Date.now().toString(), projectId: project.id, title: newTaskTitle, description: '', status, priority: Priority.MEDIUM, subtasks: [] }] }); setNewTaskTitle(''); setShowNewTaskInput(null); } };
@@ -582,7 +593,7 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, 
                     {visibleTabs.map((tab) => {
                         const isActive = activeTab === tab.id;
                         return (
-                            <button key={tab.id} onClick={() => setActiveTab(tab.id as TabType)} className={`flex items-center gap-2 px-4 md:px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex-shrink-0 ${isActive ? 'bg-[#D4D655] text-slate-900 shadow-lg shadow-lime-400/20' : 'text-slate-500 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-800 dark:hover:text-white'}`}>
+                            <button key={tab.id} onClick={() => setActiveTab(tab.id as TabType)} className={`flex items-center gap-2 px-4 md:px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex-shrink-0 ${isActive ? 'bg-lime-400 text-black shadow-lg shadow-lime-400/20' : 'text-slate-500 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-800 dark:hover:text-white'}`}>
                                 <tab.icon size={16} /> {tab.label}
                             </button>
                         )
@@ -618,6 +629,22 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, 
 
                         <div className="grid grid-cols-12 gap-8 w-full">
                             <div className="col-span-12 xl:col-span-8 space-y-8">
+                                {/* Project Description Card */}
+                                <div className="bg-white dark:bg-[#18181b] rounded-3xl p-6 md:p-8 border border-slate-100 dark:border-zinc-800 relative group hover:shadow-lg dark:hover:shadow-lime-400/5 transition-all">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-3 text-xl"><FileText size={24} className="text-lime-500" /> 專案描述</h3>
+                                        {canEditProject && (
+                                            <button onClick={() => isEditingDescription ? handleSaveDescription() : setIsEditingDescription(true)} className="text-sm font-bold text-lime-700 bg-lime-100 hover:bg-lime-200 dark:bg-lime-400 dark:text-black dark:hover:bg-lime-300 px-4 py-2 rounded-xl transition-colors">{isEditingDescription ? '儲存' : '編輯'}</button>
+                                        )}
+                                    </div>
+                                    {isEditingDescription ? (
+                                        <textarea className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-2xl p-6 min-h-[150px] text-lg focus:ring-4 ring-lime-500/10 outline-none resize-none shadow-inner text-slate-800 dark:text-zinc-200" value={tempDescription} onChange={(e) => setTempDescription(e.target.value)} placeholder="輸入專案描述..." />
+                                    ) : (
+                                        <div className="prose prose-slate dark:prose-invert max-w-none text-slate-600 dark:text-zinc-400 text-lg leading-loose break-words">{project.description || '暫無描述...'}</div>
+                                    )}
+                                </div>
+
+                                {/* Project Notes Card */}
                                 <div className="bg-white dark:bg-[#18181b] rounded-3xl p-6 md:p-8 border border-slate-100 dark:border-zinc-800 relative group hover:shadow-lg dark:hover:shadow-lime-400/5 transition-all">
                                     <div className="flex justify-between items-center mb-6">
                                         <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-3 text-xl"><PenLine size={24} className="text-lime-500" /> 專案筆記</h3>

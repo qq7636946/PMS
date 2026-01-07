@@ -919,7 +919,7 @@ export const App: React.FC = () => {
                         </div>
                         <div className="flex gap-2">
                             {['Admin', 'Manager', 'SeniorMember'].includes(currentUser.accessLevel) && (
-                                <button onClick={() => setShowNewProjectModal(true)} className="bg-[#EFF0A3] text-black px-5 py-2.5 rounded-xl font-bold shadow-lg hover:bg-[#e5e699] transition-all flex items-center gap-2 text-sm">
+                                <button onClick={() => setShowNewProjectModal(true)} className="bg-lime-400 text-black px-5 py-2.5 rounded-xl font-bold shadow-lg hover:bg-lime-500 transition-all flex items-center gap-2 text-sm">
                                     <Plus size={18} /> <span className="hidden md:inline">新增專案</span>
                                 </button>
                             )}

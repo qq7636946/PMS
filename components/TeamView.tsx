@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Member, AccessLevel } from '../types';
-import { Trash2, UserPlus, Mail, X, Lock, KeyRound, UserCheck, UserX, Loader2, Edit2, Users, Plus } from 'lucide-react';
+import { Trash2, UserPlus, Mail, X, Lock, KeyRound, UserCheck, UserX, Loader2, Edit2, Users, Plus, CheckCircle2 } from 'lucide-react';
 
 interface TeamViewProps {
     members: Member[];
@@ -525,8 +525,8 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
                                                     });
                                                 }}
                                                 className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all flex items-center gap-1.5 ${isSelected
-                                                        ? 'bg-emerald-500 text-white border-emerald-500'
-                                                        : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-700 text-slate-500 dark:text-zinc-400 hover:border-emerald-400'
+                                                    ? 'bg-emerald-500 text-white border-emerald-500'
+                                                    : 'bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-700 text-slate-500 dark:text-zinc-400 hover:border-emerald-400'
                                                     }`}
                                             >
                                                 {isSelected && <CheckCircle2 size={12} />}

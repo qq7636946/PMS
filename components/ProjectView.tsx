@@ -582,7 +582,6 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, 
                     {visibleTabs.map((tab) => {
                         const isActive = activeTab === tab.id;
                         return (
-                        return (
                             <button key={tab.id} onClick={() => setActiveTab(tab.id as TabType)} className={`flex items-center gap-2 px-4 md:px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap flex-shrink-0 ${isActive ? 'bg-[#D4D655] text-slate-900 shadow-lg shadow-lime-400/20' : 'text-slate-500 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-800 dark:hover:text-white'}`}>
                                 <tab.icon size={16} /> {tab.label}
                             </button>

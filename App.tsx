@@ -307,13 +307,14 @@ export const App: React.FC = () => {
 
                 // If user has a team, only show projects from their team OR projects they're assigned to
                 if (userTeam) {
-                    const isTeamProject = projectTeam === userTeam;
-                    const isAssigned = (p.teamMembers || []).includes(currentUser.id);
-                    // Special case: If user is in a team, they should NOT see projects from other teams unless assigned
-                    if (projectTeam && projectTeam !== userTeam && !isAssigned) {
-                        hasAccess = false;
+                    // STRICT MODE: If project has a team, it MUST match the user's team
+                    // This overrides assignment - you cannot see cross-team projects even if assigned
+                    if (projectTeam) {
+                        hasAccess = projectTeam === userTeam;
                     } else {
-                        hasAccess = isTeamProject || isAssigned;
+                        // If project has no team, fallback to assignment check
+                        const isAssigned = (p.teamMembers || []).includes(currentUser.id);
+                        hasAccess = isAssigned;
                     }
                 } else {
                     // If user has no team, only show assigned projects

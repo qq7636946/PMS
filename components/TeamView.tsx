@@ -1,8 +1,9 @@
 
+
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Member, AccessLevel } from '../types';
-import { Trash2, UserPlus, Mail, X, Lock, KeyRound, UserCheck, UserX, Loader2, Edit2, Users } from 'lucide-react';
+import { Trash2, UserPlus, Mail, X, Lock, KeyRound, UserCheck, UserX, Loader2, Edit2, Users, Plus } from 'lucide-react';
 
 interface TeamViewProps {
     members: Member[];
@@ -22,7 +23,14 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
     const [formData, setFormData] = useState<Partial<Member>>({});
     const [isProcessing, setIsProcessing] = useState(false);
 
+    // Team management states
+    const [showAddTeam, setShowAddTeam] = useState(false);
+    const [newTeamName, setNewTeamName] = useState('');
+    const [editingTeam, setEditingTeam] = useState<string | null>(null);
+    const [editTeamName, setEditTeamName] = useState('');
+
     const canManageTeam = ['Admin', 'Manager', 'SeniorMember'].includes(currentUser.accessLevel);
+    const isAdmin = currentUser.accessLevel === 'Admin';
 
     const handleInitAdd = () => {
         setFormData({
@@ -132,6 +140,157 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
                     </button>
                 )}
             </div>
+
+            {/* Team Management Section (Admin Only) */}
+            {isAdmin && (
+                <div className="bg-white dark:bg-[#18181b] rounded-2xl border border-slate-100 dark:border-zinc-800 overflow-hidden shadow-card">
+                    <div className="px-6 py-4 bg-gradient-to-r from-lime-50 to-emerald-50 dark:from-lime-900/20 dark:to-emerald-900/20 border-b border-slate-100 dark:border-zinc-800">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                    <Users size={20} className="text-lime-600 dark:text-lime-400" />
+                                    團隊名稱管理
+                                </h3>
+                                <p className="text-xs text-slate-500 dark:text-zinc-500 mt-1">自訂團隊名稱，點擊編輯或刪除</p>
+                            </div>
+                            <button
+                                onClick={() => setShowAddTeam(!showAddTeam)}
+                                className="bg-lime-400 text-black px-4 py-2 rounded-lg text-xs font-bold hover:bg-lime-500 transition-all flex items-center gap-1.5"
+                            >
+                                <Plus size={16} /> 新增團隊
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="p-6">
+                        {/* Add Team Form */}
+                        {showAddTeam && (
+                            <div className="mb-4 p-4 bg-lime-50 dark:bg-lime-900/20 rounded-xl border border-lime-200 dark:border-lime-800 animate-enter">
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={newTeamName}
+                                        onChange={(e) => setNewTeamName(e.target.value)}
+                                        placeholder="輸入團隊名稱..."
+                                        className="flex-1 px-4 py-2 rounded-lg border border-lime-300 dark:border-lime-700 bg-white dark:bg-zinc-900 text-slate-800 dark:text-white text-sm font-bold focus:outline-none focus:ring-2 ring-lime-400"
+                                        onKeyPress={(e) => {
+                                            if (e.key === 'Enter' && newTeamName.trim()) {
+                                                onAddTeam(newTeamName);
+                                                setNewTeamName('');
+                                                setShowAddTeam(false);
+                                            }
+                                        }}
+                                    />
+                                    <button
+                                        onClick={() => {
+                                            if (newTeamName.trim()) {
+                                                onAddTeam(newTeamName);
+                                                setNewTeamName('');
+                                                setShowAddTeam(false);
+                                            }
+                                        }}
+                                        className="px-4 py-2 bg-lime-500 text-white rounded-lg text-sm font-bold hover:bg-lime-600 transition-all"
+                                    >
+                                        確認
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setShowAddTeam(false);
+                                            setNewTeamName('');
+                                        }}
+                                        className="px-4 py-2 bg-slate-200 dark:bg-zinc-700 text-slate-600 dark:text-zinc-300 rounded-lg text-sm font-bold hover:bg-slate-300 dark:hover:bg-zinc-600 transition-all"
+                                    >
+                                        取消
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Teams List */}
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            {teams.map((team) => (
+                                <div
+                                    key={team}
+                                    className="group relative bg-slate-50 dark:bg-zinc-900 rounded-xl p-4 border border-slate-200 dark:border-zinc-800 hover:border-lime-400 dark:hover:border-lime-600 transition-all"
+                                >
+                                    {editingTeam === team ? (
+                                        <div className="flex flex-col gap-2">
+                                            <input
+                                                type="text"
+                                                value={editTeamName}
+                                                onChange={(e) => setEditTeamName(e.target.value)}
+                                                className="px-3 py-1.5 rounded-lg border border-lime-400 bg-white dark:bg-zinc-800 text-slate-800 dark:text-white text-sm font-bold focus:outline-none focus:ring-2 ring-lime-400"
+                                                autoFocus
+                                                onKeyPress={(e) => {
+                                                    if (e.key === 'Enter' && editTeamName.trim()) {
+                                                        onUpdateTeam(team, editTeamName);
+                                                        setEditingTeam(null);
+                                                        setEditTeamName('');
+                                                    }
+                                                }}
+                                            />
+                                            <div className="flex gap-1">
+                                                <button
+                                                    onClick={() => {
+                                                        if (editTeamName.trim()) {
+                                                            onUpdateTeam(team, editTeamName);
+                                                            setEditingTeam(null);
+                                                            setEditTeamName('');
+                                                        }
+                                                    }}
+                                                    className="flex-1 px-2 py-1 bg-lime-500 text-white rounded text-xs font-bold hover:bg-lime-600"
+                                                >
+                                                    儲存
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setEditingTeam(null);
+                                                        setEditTeamName('');
+                                                    }}
+                                                    className="flex-1 px-2 py-1 bg-slate-300 dark:bg-zinc-700 text-slate-700 dark:text-zinc-300 rounded text-xs font-bold"
+                                                >
+                                                    取消
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                                    <Users size={14} className="text-lime-600 dark:text-lime-400" />
+                                                    {team}
+                                                </span>
+                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button
+                                                        onClick={() => {
+                                                            setEditingTeam(team);
+                                                            setEditTeamName(team);
+                                                        }}
+                                                        className="p-1 hover:bg-lime-100 dark:hover:bg-lime-900/30 rounded text-lime-600 dark:text-lime-400"
+                                                        title="編輯"
+                                                    >
+                                                        <Edit2 size={14} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => onDeleteTeam(team)}
+                                                        className="p-1 hover:bg-rose-100 dark:hover:bg-rose-900/30 rounded text-rose-500"
+                                                        title="刪除"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className="mt-2 text-xs text-slate-500 dark:text-zinc-500">
+                                                {members.filter(m => m.team === team).length} 位成員
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Table Header */}
             <div className="bg-white dark:bg-[#18181b] rounded-2xl border border-slate-100 dark:border-zinc-800 overflow-hidden shadow-card">

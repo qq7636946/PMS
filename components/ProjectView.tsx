@@ -378,6 +378,7 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, 
         { id: 'chat', label: '討論', icon: MessageSquare },
     ];
 
+    // Notes tab is now visible to all members, schedule only for editors
     const visibleTabs = canEditProject
         ? allTabs
         : allTabs.filter(t => ['content', 'tasks', 'proofing', 'notes', 'chat'].includes(t.id));

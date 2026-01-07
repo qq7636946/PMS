@@ -9,6 +9,7 @@ import { Dashboard } from './components/Dashboard';
 import { AnnouncementView } from './components/AnnouncementView';
 import { BudgetView } from './components/BudgetView';
 import { GalleryView } from './components/GalleryView';
+import { MediaLibraryView } from './components/MediaLibraryView';
 import { CalendarView } from './components/CalendarView';
 import { INITIAL_PROJECTS, INITIAL_MEMBERS, DEFAULT_STAGES } from './constants';
 import { Project, Member, Announcement } from './types';
@@ -893,7 +894,8 @@ export const App: React.FC = () => {
             }
             return <BudgetView projects={projects} onUpdateProject={handleUpdateProject} currentUser={currentUser} />;
         }
-        if (activeView === 'gallery') return <GalleryView projects={projects} currentUser={currentUser} onProjectUpdate={() => setProjects([...projects])} />;
+        if (activeView === 'gallery') return <GalleryView projects={projects} />;
+        if (activeView === 'media') return <MediaLibraryView currentUser={currentUser} teams={teams} />;
         if (activeView === 'calendar') return <CalendarView projects={projects} members={members} currentUser={currentUser} onUpdateProject={handleUpdateProject} />;
         if (activeView === 'announcements') return <AnnouncementView announcements={announcements} members={members} currentUser={currentUser} onCreateAnnouncement={handleCreateAnnouncement} onUpdateAnnouncement={handleUpdateAnnouncement} onDeleteAnnouncement={handleDeleteAnnouncement} onMarkAsRead={handleMarkAnnouncementRead} />;
         if (activeView === 'settings') return <SettingsView currentUser={currentUser} onUpdateProfile={handleUpdateMember} onResetData={handleResetData} defaultStages={defaultStages} onUpdateDefaultStages={setDefaultStages} />;

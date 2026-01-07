@@ -1,30 +1,16 @@
 
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Project, Member } from '../types';
-import { Search, X, ZoomIn, Image as ImageIcon, Upload, Loader2 } from 'lucide-react';
-import { storage, db } from '../firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { Project } from '../types';
+import { Search, X, ZoomIn, Image as ImageIcon } from 'lucide-react';
 
 interface GalleryViewProps {
     projects: Project[];
-    currentUser: Member | null;
-    onProjectUpdate?: () => void;
 }
 
-export const GalleryView: React.FC<GalleryViewProps> = ({ projects, currentUser, onProjectUpdate }) => {
+export const GalleryView: React.FC<GalleryViewProps> = ({ projects }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [previewImage, setPreviewImage] = useState<string | null>(null);
-    const [showUploadModal, setShowUploadModal] = useState(false);
-    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-    const [selectedProject, setSelectedProject] = useState('');
-    const [roundTitle, setRoundTitle] = useState('');
-    const [isUploading, setIsUploading] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState(0);
-    const [isDragging, setIsDragging] = useState(false);
-
-    const canUpload = currentUser && ['Admin', 'Manager', 'SeniorMember'].includes(currentUser.accessLevel);
 
     // Flatten all proofing images from all projects
     const allImages = projects.flatMap(project =>
@@ -44,140 +30,23 @@ export const GalleryView: React.FC<GalleryViewProps> = ({ projects, currentUser,
         img.roundTitle.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const handleFileSelect = (files: FileList | null) => {
-        if (!files) return;
-        const validFiles = Array.from(files).filter(file => {
-            if (!file.type.startsWith('image/')) {
-                alert(`${file.name} 不是圖片檔案`);
-                return false;
-            }
-            if (file.size > 5 * 1024 * 1024) {
-                alert(`${file.name} 超過 5MB 限制`);
-                return false;
-            }
-            return true;
-        });
-        setSelectedFiles(validFiles);
-        if (validFiles.length > 0) {
-            setShowUploadModal(true);
-        }
-    };
-
-    const handleUpload = async () => {
-        if (!selectedProject || selectedFiles.length === 0 || !currentUser) return;
-
-        setIsUploading(true);
-        setUploadProgress(0);
-
-        try {
-            const uploadedUrls: string[] = [];
-
-            for (let i = 0; i < selectedFiles.length; i++) {
-                const file = selectedFiles[i];
-                const timestamp = Date.now();
-                const fileName = `gallery/${selectedProject}/${timestamp}_${file.name}`;
-                const storageRef = ref(storage, fileName);
-
-                await uploadBytes(storageRef, file);
-                const url = await getDownloadURL(storageRef);
-                uploadedUrls.push(url);
-
-                setUploadProgress(((i + 1) / selectedFiles.length) * 100);
-            }
-
-            // Add to project's proofing array
-            const projectRef = doc(db, 'projects', selectedProject);
-            await updateDoc(projectRef, {
-                proofing: arrayUnion({
-                    title: roundTitle || `上傳於 ${new Date().toLocaleDateString()}`,
-                    date: new Date().toISOString().split('T')[0],
-                    images: uploadedUrls
-                })
-            });
-
-            // Reset and close
-            setShowUploadModal(false);
-            setSelectedFiles([]);
-            setSelectedProject('');
-            setRoundTitle('');
-            setUploadProgress(0);
-
-            if (onProjectUpdate) onProjectUpdate();
-
-            alert('上傳成功！');
-        } catch (error) {
-            console.error('Upload error:', error);
-            alert('上傳失敗，請稍後再試');
-        } finally {
-            setIsUploading(false);
-        }
-    };
-
-    const handleDragOver = (e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(true);
-    };
-
-    const handleDragLeave = () => {
-        setIsDragging(false);
-    };
-
-    const handleDrop = (e: React.DragEvent) => {
-        e.preventDefault();
-        setIsDragging(false);
-        if (canUpload) {
-            handleFileSelect(e.dataTransfer.files);
-        }
-    };
-
     return (
-        <div
-            className="space-y-8 animate-enter pb-10 relative"
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-        >
-            {/* Drag overlay */}
-            {isDragging && canUpload && (
-                <div className="fixed inset-0 z-50 bg-lime-400/20 backdrop-blur-sm flex items-center justify-center pointer-events-none">
-                    <div className="bg-white dark:bg-zinc-900 p-12 rounded-3xl border-4 border-dashed border-lime-400 shadow-2xl">
-                        <Upload size={64} className="text-lime-500 mx-auto mb-4" />
-                        <p className="text-2xl font-bold text-slate-800 dark:text-white">放開以上傳圖片</p>
-                    </div>
-                </div>
-            )}
-
+        <div className="space-y-8 animate-enter pb-10">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h2 className="text-3xl font-extrabold text-slate-800 dark:text-white">設計藝廊</h2>
-                    <p className="text-slate-400 dark:text-zinc-500 mt-2 text-sm font-medium">探索所有專案的設計校稿，激發團隊靈感。</p>
+                    <p className="text-slate-400 dark:text-zinc-500 mt-2 text-sm font-medium">瀏覽所有專案的校稿圖片</p>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <div className="relative group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 group-focus-within:text-lime-500 dark:group-focus-within:text-lime-400 transition-colors" size={20} />
-                        <input
-                            type="text"
-                            placeholder="搜尋專案或標題..."
-                            className="pl-12 pr-4 py-3 bg-white dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-white w-full md:w-64 focus:border-lime-500 outline-none shadow-sm"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
-
-                    {canUpload && (
-                        <label className="px-5 py-3 bg-lime-400 text-black rounded-2xl text-sm font-bold hover:bg-lime-500 transition-all cursor-pointer flex items-center gap-2 shadow-sm">
-                            <Upload size={18} />
-                            上傳圖片
-                            <input
-                                type="file"
-                                multiple
-                                accept="image/*"
-                                className="hidden"
-                                onChange={(e) => handleFileSelect(e.target.files)}
-                            />
-                        </label>
-                    )}
+                <div className="relative group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 group-focus-within:text-lime-500 dark:group-focus-within:text-lime-400 transition-colors" size={20} />
+                    <input
+                        type="text"
+                        placeholder="搜尋專案..."
+                        className="pl-12 pr-4 py-3 bg-white dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 rounded-2xl text-sm font-bold text-slate-700 dark:text-white w-full md:w-64 focus:border-lime-500 outline-none shadow-sm"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
             </div>
 
@@ -192,7 +61,7 @@ export const GalleryView: React.FC<GalleryViewProps> = ({ projects, currentUser,
                                 <h4 className="text-white font-bold text-sm truncate">{img.projectTitle}</h4>
                                 <div className="flex justify-between items-center mt-1">
                                     <span className="text-slate-300 text-xs truncate max-w-[70%]">{img.roundTitle}</span>
-                                    <span className="text-slate-400 text-[10px]">{img.date}</span>
+                                    <span className="text-slate-400 text-[10px]">{new Date(img.date).toLocaleDateString()}</span>
                                 </div>
                             </div>
 
@@ -209,114 +78,11 @@ export const GalleryView: React.FC<GalleryViewProps> = ({ projects, currentUser,
                         <ImageIcon size={40} />
                     </div>
                     <h3 className="text-lg font-bold text-slate-500 dark:text-zinc-500">沒有找到圖片</h3>
-                    <p className="text-sm">試試看不同的關鍵字，或到專案中上傳校稿。</p>
+                    <p className="text-sm">試試看不同的關鍵字</p>
                 </div>
             )}
 
-            {/* Upload Modal */}
-            {showUploadModal && createPortal(
-                <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => !isUploading && setShowUploadModal(false)}>
-                    <div className="bg-white dark:bg-[#18181b] rounded-3xl shadow-2xl border border-slate-200 dark:border-zinc-800 max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-                        <div className="p-6 border-b border-slate-200 dark:border-zinc-800 flex justify-between items-center">
-                            <h3 className="text-xl font-bold text-slate-800 dark:text-white">上傳圖片到藝廊</h3>
-                            {!isUploading && (
-                                <button onClick={() => setShowUploadModal(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-full transition-colors">
-                                    <X size={20} />
-                                </button>
-                            )}
-                        </div>
-
-                        <div className="p-6 space-y-6">
-                            {/* Image Previews */}
-                            <div>
-                                <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-3">預覽圖片 ({selectedFiles.length})</label>
-                                <div className="grid grid-cols-3 gap-4">
-                                    {selectedFiles.map((file, idx) => (
-                                        <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-slate-200 dark:border-zinc-800">
-                                            <img src={URL.createObjectURL(file)} alt={file.name} className="w-full h-full object-cover" />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Project Selection */}
-                            <div>
-                                <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2">選擇專案 *</label>
-                                <select
-                                    value={selectedProject}
-                                    onChange={(e) => setSelectedProject(e.target.value)}
-                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:outline-none focus:ring-2 ring-lime-400"
-                                    disabled={isUploading}
-                                >
-                                    <option value="">請選擇專案</option>
-                                    {projects.map(p => (
-                                        <option key={p.id} value={p.id}>{p.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Round Title */}
-                            <div>
-                                <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2">校稿標題（選填）</label>
-                                <input
-                                    type="text"
-                                    value={roundTitle}
-                                    onChange={(e) => setRoundTitle(e.target.value)}
-                                    placeholder="例如：第一版設計稿"
-                                    className="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl text-sm font-bold text-slate-700 dark:text-white focus:outline-none focus:ring-2 ring-lime-400"
-                                    disabled={isUploading}
-                                />
-                            </div>
-
-                            {/* Progress */}
-                            {isUploading && (
-                                <div>
-                                    <div className="flex justify-between text-xs font-bold text-slate-500 dark:text-zinc-400 mb-2">
-                                        <span>上傳中...</span>
-                                        <span>{Math.round(uploadProgress)}%</span>
-                                    </div>
-                                    <div className="h-2 bg-slate-200 dark:bg-zinc-800 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-lime-400 transition-all duration-300"
-                                            style={{ width: `${uploadProgress}%` }}
-                                        />
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="p-6 border-t border-slate-200 dark:border-zinc-800 flex gap-3">
-                            <button
-                                onClick={() => setShowUploadModal(false)}
-                                className="flex-1 px-6 py-3 bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-white rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors"
-                                disabled={isUploading}
-                            >
-                                取消
-                            </button>
-                            <button
-                                onClick={handleUpload}
-                                className="flex-1 px-6 py-3 bg-lime-400 text-black rounded-xl font-bold hover:bg-lime-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                disabled={isUploading || !selectedProject || selectedFiles.length === 0}
-                            >
-                                {isUploading ? (
-                                    <>
-                                        <Loader2 size={18} className="animate-spin" />
-                                        上傳中...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Upload size={18} />
-                                        上傳 {selectedFiles.length} 張圖片
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                    </div>
-                </div>,
-                document.body
-            )}
-
-            {/* Lightbox - Portaled */}
+            {/* Lightbox */}
             {previewImage && createPortal(
                 <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 animate-enter" onClick={() => setPreviewImage(null)}>
                     <button className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors p-2 bg-white/10 rounded-full">

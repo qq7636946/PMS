@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { FolderKanban, Settings, Plus, Hexagon, Users, LogOut, Search, Bell, AlertCircle, LayoutDashboard, Menu, X, Megaphone, DollarSign, Image as ImageIcon, Trash2, CheckCircle2, Calendar, Sun, Moon } from 'lucide-react';
+import { FolderKanban, Settings, Plus, Hexagon, Users, LogOut, Search, Bell, AlertCircle, LayoutDashboard, Menu, X, Megaphone, DollarSign, Image as ImageIcon, Folder, Trash2, CheckCircle2, Calendar, Sun, Moon } from 'lucide-react';
 import { Member, Announcement, Project, Status, Priority } from '../types';
 
 interface SidebarProps {
@@ -23,6 +23,7 @@ const SidebarContent: React.FC<SidebarProps> = ({ activeView, setActiveView, onN
         // Budget only for Admin
         ...(currentUser?.accessLevel === 'Admin' ? [{ id: 'budget', label: '財務預算', icon: DollarSign, roles: ['Admin'] }] : []),
         { id: 'gallery', label: '設計藝廊', icon: ImageIcon, roles: ['Admin', 'Manager', 'Member'] },
+        { id: 'media', label: '媒體庫', icon: Folder, roles: ['Admin', 'Manager', 'Member'] },
         { id: 'announcements', label: '系統公告', icon: Megaphone, roles: ['Admin', 'Manager', 'Member'] },
         ...(currentUser?.accessLevel === 'Admin' ? [{ id: 'team', label: '團隊管理', icon: Users, roles: ['Admin'] }] : []),
         { id: 'settings', label: '系統設定', icon: Settings, roles: ['Admin', 'Manager', 'Member'] },

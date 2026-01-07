@@ -789,7 +789,7 @@ export const App: React.FC = () => {
                                             )}
                                         </div>
                                         <div className="flex flex-col items-end gap-1">
-                                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border ${p.riskLevel === 'High' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-500' : p.riskLevel === 'Medium' ? 'bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/30 text-orange-600 dark:text-orange-500' : 'bg-lime-50 dark:bg-lime-400/10 border-lime-200 dark:border-lime-400/30 text-lime-700 dark:text-lime-400'}`}>
+                                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border ${p.riskLevel === 'High' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-500' : p.riskLevel === 'Medium' ? 'bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/30 text-orange-600 dark:text-orange-500' : 'bg-emerald-50 dark:bg-emerald-400/10 border-emerald-200 dark:border-emerald-400/30 text-emerald-700 dark:text-emerald-400'}`}>
                                                 {p.riskLevel === 'High' ? '高風險' : p.riskLevel === 'Medium' ? '中風險' : '低風險'}
                                             </span>
                                         </div>
@@ -800,7 +800,7 @@ export const App: React.FC = () => {
                                         {canEdit && <Pencil size={12} className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 dark:text-zinc-500 opacity-0 group-hover/edit:opacity-100 pointer-events-none" />}
                                     </div>
 
-                                    <p className="text-xs text-lime-600 dark:text-lime-400 font-bold mb-3">{p.stage}</p>
+                                    <p className="text-xs text-emerald-700 dark:text-emerald-400 font-bold mb-3">{p.stage}</p>
                                     <p className="text-slate-500 dark:text-zinc-500 text-xs mb-6 line-clamp-2 min-h-[2.5em] leading-relaxed">{p.description || '暫無描述...'}</p>
 
                                     <div className="space-y-3 pt-4 border-t border-slate-100 dark:border-zinc-800">
@@ -876,7 +876,20 @@ export const App: React.FC = () => {
         }
 
         if (activeView === 'team') return <TeamView members={members} onAddMember={handleAddMember} onUpdateMember={handleUpdateMember} onRemoveMember={handleRemoveMember} currentUser={currentUser} teams={teams} onAddTeam={handleAddTeam} onUpdateTeam={handleUpdateTeam} onDeleteTeam={handleDeleteTeam} />;
-        if (activeView === 'budget') return <BudgetView projects={projects} onUpdateProject={handleUpdateProject} currentUser={currentUser} />;
+        if (activeView === 'budget') {
+            // Only Admin can access budget view
+            if (currentUser.accessLevel !== 'Admin') {
+                return (
+                    <div className="flex items-center justify-center h-full">
+                        <div className="text-center">
+                            <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">權限不足</h3>
+                            <p className="text-slate-500 dark:text-zinc-500">只有系統管理員可以查看財務預算</p>
+                        </div>
+                    </div>
+                );
+            }
+            return <BudgetView projects={projects} onUpdateProject={handleUpdateProject} currentUser={currentUser} />;
+        }
         if (activeView === 'gallery') return <GalleryView projects={projects} />;
         if (activeView === 'calendar') return <CalendarView projects={projects} members={members} currentUser={currentUser} onUpdateProject={handleUpdateProject} />;
         if (activeView === 'announcements') return <AnnouncementView announcements={announcements} members={members} currentUser={currentUser} onCreateAnnouncement={handleCreateAnnouncement} onUpdateAnnouncement={handleUpdateAnnouncement} onDeleteAnnouncement={handleDeleteAnnouncement} onMarkAsRead={handleMarkAnnouncementRead} />;
@@ -902,12 +915,6 @@ export const App: React.FC = () => {
                             <p className="text-slate-400 dark:text-zinc-500 mt-1 text-sm md:text-base font-medium">管理您的設計與開發工作流程</p>
                         </div>
                         <div className="flex gap-2">
-                            {projects.length === 0 && (
-                                <button onClick={handleResetData} className="bg-slate-200 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 px-4 py-2.5 rounded-xl font-bold hover:bg-slate-300 dark:hover:bg-zinc-700 transition-all flex items-center gap-2 text-sm">
-                                    <RefreshCw size={18} /> 重置演示資料
-                                </button>
-                            )}
-
                             {['Admin', 'Manager', 'SeniorMember'].includes(currentUser.accessLevel) && (
                                 <button onClick={() => setShowNewProjectModal(true)} className="bg-[#EFF0A3] text-black px-5 py-2.5 rounded-xl font-bold shadow-lg hover:bg-[#e5e699] transition-all flex items-center gap-2 text-sm">
                                     <Plus size={18} /> <span className="hidden md:inline">新增專案</span>
@@ -1018,16 +1025,15 @@ export const App: React.FC = () => {
                                 <div>
                                     <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2 pl-1">專案團隊</label>
                                     <select
-                                        className="w-full bg-slate-50 dark:bg-bg-input border border-slate-200 dark:border-border rounded-xl px-4 py-3.5 font-bold text-slate-800 dark:text-white outline-none focus:border-lime-500 transition-all"
+                                        className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl px-5 py-3 text-sm font-bold text-slate-700 dark:text-white focus:bg-white dark:focus:bg-black transition-all outline-none focus:border-[#EFF0A3]"
                                         value={newProjectTeam}
                                         onChange={(e) => setNewProjectTeam(e.target.value)}
                                         disabled={currentUser?.accessLevel !== 'Admin'}
                                     >
                                         <option value="">未分配</option>
-                                        <option value="A團隊">A團隊</option>
-                                        <option value="B團隊">B團隊</option>
-                                        <option value="C團隊">C團隊</option>
-                                        <option value="D團隊">D團隊</option>
+                                        {teams.map(team => (
+                                            <option key={team} value={team}>{team}</option>
+                                        ))}
                                     </select>
                                     {currentUser?.accessLevel !== 'Admin' && currentUser?.team && (
                                         <p className="text-[10px] text-slate-400 dark:text-zinc-500 mt-1 ml-1">* 自動分配至您的團隊: {currentUser.team}</p>

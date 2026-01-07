@@ -29,11 +29,41 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
     const [editingTeam, setEditingTeam] = useState<string | null>(null);
     const [editTeamName, setEditTeamName] = useState('');
 
+    // Sorting state
+    const [sortField, setSortField] = useState<'name' | 'role' | 'accessLevel' | 'team' | 'status'>('name');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
 
     const canManageTeam = ['Admin', 'Manager', 'SeniorMember'].includes(currentUser.accessLevel);
     const isAdmin = currentUser.accessLevel === 'Admin';
     // Only Admin can manage teams (add/edit/delete team names)
     // Manager and SeniorMember can manage members but not teams
+
+    // Sorting function
+    const handleSort = (field: 'name' | 'role' | 'accessLevel' | 'team' | 'status') => {
+        if (sortField === field) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortDirection('asc');
+        }
+    };
+
+    // Sort members
+    const sortedMembers = [...members].sort((a, b) => {
+        let aVal = a[sortField] || '';
+        let bVal = b[sortField] || '';
+
+        if (sortField === 'accessLevel') {
+            const order = { 'Admin': 0, 'Manager': 1, 'SeniorMember': 2, 'Member': 3 };
+            aVal = order[a.accessLevel as keyof typeof order] || 999;
+            bVal = order[b.accessLevel as keyof typeof order] || 999;
+        }
+
+        if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+    });
 
     const handleInitAdd = () => {
         setFormData({
@@ -151,7 +181,7 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
                         <div className="flex items-center justify-between">
                             <div>
                                 <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                                    <Users size={20} className="text-lime-600 dark:text-lime-400" />
+                                    <Users size={20} className="text-emerald-700 dark:text-emerald-400" />
                                     團隊名稱管理
                                 </h3>
                                 <p className="text-xs text-slate-500 dark:text-zinc-500 mt-1">自訂團隊名稱，點擊編輯或刪除</p>
@@ -260,7 +290,7 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
                                         <>
                                             <div className="flex items-center justify-between">
                                                 <span className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                                                    <Users size={14} className="text-lime-600 dark:text-lime-400" />
+                                                    <Users size={14} className="text-emerald-700 dark:text-emerald-400" />
                                                     {team}
                                                 </span>
                                                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -269,7 +299,7 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
                                                             setEditingTeam(team);
                                                             setEditTeamName(team);
                                                         }}
-                                                        className="p-1 hover:bg-lime-100 dark:hover:bg-lime-900/30 rounded text-lime-600 dark:text-lime-400"
+                                                        className="p-1 hover:bg-lime-100 dark:hover:bg-lime-900/30 rounded text-emerald-700 dark:text-emerald-400"
                                                         title="編輯"
                                                     >
                                                         <Edit2 size={14} />
@@ -298,17 +328,27 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
             {/* Table Header */}
             <div className="bg-white dark:bg-[#18181b] rounded-2xl border border-slate-100 dark:border-zinc-800 overflow-hidden shadow-card">
                 <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-slate-50 dark:bg-zinc-900 border-b border-slate-100 dark:border-zinc-800">
-                    <div className="col-span-3 text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider">成員</div>
-                    <div className="col-span-2 text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider">職稱</div>
-                    <div className="col-span-2 text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider">權限</div>
-                    <div className="col-span-2 text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider">團隊</div>
-                    <div className="col-span-2 text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider">狀態</div>
+                    <button onClick={() => handleSort('name')} className="col-span-3 text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider text-left hover:text-slate-700 dark:hover:text-zinc-300 transition-colors flex items-center gap-1">
+                        成員 {sortField === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}
+                    </button>
+                    <button onClick={() => handleSort('role')} className="col-span-2 text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider text-left hover:text-slate-700 dark:hover:text-zinc-300 transition-colors flex items-center gap-1">
+                        職稱 {sortField === 'role' && (sortDirection === 'asc' ? '↑' : '↓')}
+                    </button>
+                    <button onClick={() => handleSort('accessLevel')} className="col-span-2 text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider text-left hover:text-slate-700 dark:hover:text-zinc-300 transition-colors flex items-center gap-1">
+                        權限 {sortField === 'accessLevel' && (sortDirection === 'asc' ? '↑' : '↓')}
+                    </button>
+                    <button onClick={() => handleSort('team')} className="col-span-2 text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider text-left hover:text-slate-700 dark:hover:text-zinc-300 transition-colors flex items-center gap-1">
+                        團隊 {sortField === 'team' && (sortDirection === 'asc' ? '↑' : '↓')}
+                    </button>
+                    <button onClick={() => handleSort('status')} className="col-span-2 text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider text-left hover:text-slate-700 dark:hover:text-zinc-300 transition-colors flex items-center gap-1">
+                        狀態 {sortField === 'status' && (sortDirection === 'asc' ? '↑' : '↓')}
+                    </button>
                     <div className="col-span-1 text-xs font-bold text-slate-500 dark:text-zinc-500 uppercase tracking-wider text-right">操作</div>
                 </div>
 
                 {/* Table Rows */}
                 <div className="divide-y divide-slate-100 dark:divide-zinc-800">
-                    {members.map(member => (
+                    {sortedMembers.map(member => (
                         <div key={member.id} className={`grid grid-cols-12 gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-zinc-900/50 transition-colors ${member.status === 'Suspended' ? 'opacity-60' : ''}`}>
                             {/* Member Info */}
                             <div className="col-span-3 flex items-center gap-3">
@@ -358,7 +398,7 @@ export const TeamView: React.FC<TeamViewProps> = ({ members, onAddMember, onUpda
                             {/* Team */}
                             <div className="col-span-2 flex items-center">
                                 {member.team ? (
-                                    <span className="px-3 py-1 rounded-lg text-xs font-bold bg-lime-50 dark:bg-lime-500/20 text-lime-600 dark:text-lime-400 flex items-center gap-1">
+                                    <span className="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
                                         <Users size={12} /> {member.team}
                                     </span>
                                 ) : (

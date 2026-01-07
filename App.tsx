@@ -986,7 +986,7 @@ export const App: React.FC = () => {
                     )}
 
                     {activeView === 'dashboard' && (
-                        <Dashboard projects={projects} members={members} onSelectProject={(id) => { setSelectedProjectId(id); setActiveView('projects'); }} />
+                        <Dashboard projects={filteredProjects} members={members} onSelectProject={(id) => { setSelectedProjectId(id); setActiveView('projects'); }} />
                     )}
 
                     <div className="flex items-center justify-between mb-6">

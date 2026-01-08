@@ -107,20 +107,28 @@ export const ProjectView: React.FC<ProjectViewProps> = ({ project, currentUser, 
             if (currentIndex > 0) {
                 const prevStage = currentStages[currentIndex - 1];
                 const newCompleted = project.completedStages.filter(s => s !== targetStage);
-                onUpdateProject({ ...project, stage: prevStage, completedStages: newCompleted, progress: Math.max(0, project.progress - 5) });
+                // 修改：基於已完成階段數量計算進度，如果在最後階段則為100%
+                const isLastStage = prevStage === currentStages[currentStages.length - 1];
+                const newProgress = isLastStage ? 100 : Math.round((newCompleted.length / currentStages.length) * 100);
+                onUpdateProject({ ...project, stage: prevStage, completedStages: newCompleted, progress: newProgress });
             }
             return;
         }
 
         if (targetIndex > currentIndex) {
-            const newProgress = Math.round(((targetIndex + 1) / currentStages.length) * 100);
             const stagesToAdd = currentStages.slice(0, targetIndex).filter(s => !project.completedStages.includes(s));
             const newCompleted = [...project.completedStages, ...stagesToAdd];
+            // 修改：如果目標階段是最後一個階段，進度為100%
+            const isLastStage = targetStage === currentStages[currentStages.length - 1];
+            const newProgress = isLastStage ? 100 : Math.round((newCompleted.length / currentStages.length) * 100);
             onUpdateProject({ ...project, stage: targetStage, progress: newProgress, completedStages: newCompleted });
         } else {
             const isCompleted = project.completedStages.includes(targetStage);
             const newCompletedStages = isCompleted ? project.completedStages.filter(s => s !== targetStage) : [...project.completedStages, targetStage];
-            onUpdateProject({ ...project, completedStages: newCompletedStages });
+            // 新增：更新進度，如果當前階段是最後階段則為100%
+            const isLastStage = project.stage === currentStages[currentStages.length - 1];
+            const newProgress = isLastStage ? 100 : Math.round((newCompletedStages.length / currentStages.length) * 100);
+            onUpdateProject({ ...project, completedStages: newCompletedStages, progress: newProgress });
         }
     };
 

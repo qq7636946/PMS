@@ -18,6 +18,7 @@ import { Plus, Folder, Camera, Trash2, Pencil, CheckCircle2, Zap, LayoutGrid, Lo
 import { auth, db, createSecondaryUser } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { collection, doc, setDoc, deleteDoc, onSnapshot, getDocs } from 'firebase/firestore';
+import { fixAllProjectProgress } from './utils/fixProgress';
 
 interface ErrorBoundaryProps {
     children?: ReactNode;
@@ -981,7 +982,7 @@ export const App: React.FC = () => {
         if (activeView === 'media') return <MediaLibraryView currentUser={currentUser} teams={teams} />;
         if (activeView === 'calendar') return <CalendarView projects={projects} members={members} currentUser={currentUser} onUpdateProject={handleUpdateProject} />;
         if (activeView === 'announcements') return <AnnouncementView announcements={announcements} members={members} currentUser={currentUser} onCreateAnnouncement={handleCreateAnnouncement} onUpdateAnnouncement={handleUpdateAnnouncement} onDeleteAnnouncement={handleDeleteAnnouncement} onMarkAsRead={handleMarkAnnouncementRead} />;
-        if (activeView === 'settings') return <SettingsView currentUser={currentUser} onUpdateProfile={handleUpdateMember} onResetData={handleResetData} defaultStages={defaultStages} onUpdateDefaultStages={setDefaultStages} />;
+        if (activeView === 'settings') return <SettingsView currentUser={currentUser} onUpdateProfile={handleUpdateMember} onResetData={handleResetData} defaultStages={defaultStages} onUpdateDefaultStages={setDefaultStages} onFixProgress={fixAllProjectProgress} />;
 
         if (activeView === 'dashboard' || (activeView === 'projects' && !currentProject)) {
             return (

@@ -30,16 +30,11 @@ export async function fixAllProjectProgress() {
                     ? project.completedStages
                     : [];
 
-                let correctProgress;
-
-                // If the project is on the last stage, set progress to 100%
-                const isOnLastStage = project.stage === stages[stages.length - 1];
-                if (isOnLastStage) {
-                    correctProgress = 100;
-                } else {
-                    // Calculate correct progress based on completed stages
-                    correctProgress = Math.round((completedStages.length / stages.length) * 100);
-                }
+                // Calculate correct progress based on current stage index
+                const currentStageIndex = stages.indexOf(project.stage);
+                const correctProgress = currentStageIndex >= 0
+                    ? Math.round(((currentStageIndex + 1) / stages.length) * 100)
+                    : 0;
 
                 // Only update if progress is different
                 if (project.progress !== correctProgress) {

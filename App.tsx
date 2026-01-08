@@ -884,7 +884,7 @@ export const App: React.FC = () => {
                                             <div className="flex justify-between text-[10px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wide"><span>完成度</span><span>{p.progress}%</span></div>
                                             <div className="h-1.5 w-full bg-slate-200 dark:bg-zinc-800 rounded-full overflow-hidden">
                                                 <div
-                                                    className={`h-full rounded-full transition-all duration-1000 ${p.progress === 100 ? 'bg-lime-500 dark:bg-lime-400 shadow-[0_0_10px_rgba(217,248,80,0.5)]' :
+                                                    className={`h-full rounded-full transition-all duration-1000 ${p.progress === 100 ? 'bg-lime-400 dark:bg-lime-400 shadow-[0_0_10px_rgba(217,248,80,0.5)]' :
                                                         p.progress >= 81 ? 'bg-blue-500 dark:bg-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.5)]' :
                                                             p.progress >= 61 ? 'bg-yellow-500 dark:bg-yellow-400 shadow-[0_0_10px_rgba(234,179,8,0.5)]' :
                                                                 p.progress >= 31 ? 'bg-orange-500 dark:bg-orange-400 shadow-[0_0_10px_rgba(249,115,22,0.5)]' :

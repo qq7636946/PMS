@@ -885,12 +885,12 @@ export const App: React.FC = () => {
                                             <div className="h-1.5 w-full bg-slate-200 dark:bg-zinc-800 rounded-full overflow-hidden">
                                                 <div
                                                     className={`h-full rounded-full transition-all duration-1000 ${p.progress === 100 ? 'bg-lime-500 dark:bg-lime-400 shadow-[0_0_10px_rgba(217,248,80,0.5)]' :
-                                                            p.progress >= 81 ? 'bg-blue-500 dark:bg-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.5)]' :
-                                                                p.progress >= 61 ? 'bg-yellow-500 dark:bg-yellow-400 shadow-[0_0_10px_rgba(234,179,8,0.5)]' :
-                                                                    p.progress >= 31 ? 'bg-orange-500 dark:bg-orange-400 shadow-[0_0_10px_rgba(249,115,22,0.5)]' :
-                                                                        'bg-rose-500 dark:bg-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.5)]'
+                                                        p.progress >= 81 ? 'bg-blue-500 dark:bg-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.5)]' :
+                                                            p.progress >= 61 ? 'bg-yellow-500 dark:bg-yellow-400 shadow-[0_0_10px_rgba(234,179,8,0.5)]' :
+                                                                p.progress >= 31 ? 'bg-orange-500 dark:bg-orange-400 shadow-[0_0_10px_rgba(249,115,22,0.5)]' :
+                                                                    'bg-rose-500 dark:bg-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.5)]'
                                                         }`}
-                                                    style={{ width: `${p.progress}%` }}
+                                                    style={{ width: `${Math.max(p.progress, 2)}%` }}
                                                 ></div>
                                             </div>
                                             <div className="flex items-center justify-between pt-1 md:pt-2">
@@ -1079,22 +1079,20 @@ export const App: React.FC = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
                                             <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2 pl-1">專案分類</label>
-                                            <input
-                                                list="category-options"
+                                            <select
                                                 className="w-full bg-slate-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl px-5 py-3.5 font-bold text-slate-800 dark:text-white outline-none focus:border-[#EFF0A3] transition-all"
                                                 value={newProjectData.category}
                                                 onChange={e => setNewProjectData({ ...newProjectData, category: e.target.value })}
-                                                placeholder="輸入或選擇分類"
-                                            />
-                                            <datalist id="category-options">
+                                            >
+                                                <option value="">未分類</option>
                                                 {(() => {
                                                     // 從現有專案中提取所有分類
                                                     const existingCategories = [...new Set(projects.map(p => p.category).filter(c => c && c !== '未分類'))];
                                                     // 如果沒有任何分類，使用預設分類
                                                     const categories = existingCategories.length > 0 ? existingCategories : PROJECT_CATEGORIES;
-                                                    return categories.map(c => <option key={c} value={c} />);
+                                                    return categories.map(c => <option key={c} value={c}>{c}</option>);
                                                 })()}
-                                            </datalist>
+                                            </select>
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-slate-400 dark:text-zinc-500 uppercase mb-2 pl-1">預算 (TWD)</label>
